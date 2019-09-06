@@ -14,10 +14,10 @@ namespace MyProject.Api.Controllers
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
-        //[HttpPost]
-        //public Result Login([FromBody] LoginDto dto)
-        //{
-        //    return LoginBll.Login(dto);
-        //}
+        [HttpPost]
+        public Result Login([FromBody] LoginDto dto)
+        {
+            return LoginBll.Login(dto);
+        }
     }
 }

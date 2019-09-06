@@ -14,7 +14,6 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
         <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -30,5 +29,8 @@
     
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
       <DocumentationFile></DocumentationFile>
+      <DefineConstants>TRACE</DefineConstants>
+      <PlatformTarget>AnyCPU</PlatformTarget>
+      <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     </PropertyGroup>
 </Project>
