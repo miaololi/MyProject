@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    <title>登录页</title>
+    <script src="../Js/jquery-1.9.1/jquery.min.js"></script>
+    <script src="../Js/jquery-1.9.1/Jquery.Query.js"></script>
+    <script src="../Js/jquery-1.9.1/jquery.cookie.js"></script>
+    <script src="../Js/Global.js"></script>
+
+    <script>
+        // 本页面一定是顶层窗口，不会嵌在IFrame中
+        if (top.window != window) {
+            top.window.location.href = "/Htmls/login.html?TimeNow=" + new Date().getTime();
+        }
+
+        $(function () {
+            var c = $("#c");
+            var ClientIp = $("#ClientIp");
+            var fcode = $.query.get("fromcode");
+
+            function guid() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            var _guid = guid();
+            var codeUrl = apiServer + "/api/Code/GetCode?Guid=" + _guid;
+            $("#c").attr("src", codeUrl);
+            $("#c").click(function () {
+                $("#c").attr("src", codeUrl + "&TimeNow=" + (new Date().getTime()));
+            });
+
+            $.getJSON("https://api.ipify.org/?format=jsonp&callback=?&_=" + Math.random(), function (result) {
+                ClientIp.val(result.ip);
+            });
+
+            $("#b").click(function () {
+                login();
+            });
+
+            $(document).keydown(function (e) {
+                if (e.keyCode == 13) {
+                    login();
+                }
+            });
+
+            var login = function () {
+                var u = $("#u");
+                var p = $("#p");
+
+                $.ajax({
+                    type: "POST",
+                    url: apiServer + "/Login/login",
+                    data: {
+                        UserName: u.val(),
+                        UserPwd: p.val(),
+                        Host: ClientIp.val()
+                    },
+                    success: function (data) {
+                        if (data.code == 1) {
+                            $.cookie("BT.PRESERVATION", data.object, { expires: 12 });
+                            window.location.href = "index.html";
+                        } else {
+                            layWindow.layMsg(data.message);
+                        }
+                    }
+                });
+
+                //$.ajax({
+                //    type: "get",
+                //    url: apiServer + "/Code/CheckCode",
+                //    data: { Guid: _guid, Code: txtCode.val(), FromCode: fcode },
+                //    success: function (data) {
+                //        if (data.code == "1") {
+                //            $.ajax({
+                //                type: "POST",
+                //                url: apiServer + "Login/GetUserInfo",
+                //                data: { UserName: txtUserName.val(), UserPwd: txtPassWord.val(), Host: ClientIp.val() },
+                //                success: function (data) {
+                //                    if (data.code == 1) {
+                //                        $.cookie("BT.PRESERVATION", data.object, { expires: 12 });
+                //                        window.location.href = "index.html";
+                //                    } else {
+                //                        layWindow.layMsg(data.message);
+                //                    }
+                //                }
+                //            });
+                //        }
+                //    }
+                //});
+            };
+        });
+    </script>
+</head>
+<body>
+    <input id="ClientIp" type="hidden" />
+    <input type="text" id="u" placeholder="账号" />
+    <input type="password" id="p" placeholder="密码" />
+    <img src="" id="c" alt="点击切换验证码" title="点击切换验证码" style="cursor: pointer; margin-top: 0px; vertical-align: top;" />
+    <a id="b">登录</a>
+</body>
+</html>
