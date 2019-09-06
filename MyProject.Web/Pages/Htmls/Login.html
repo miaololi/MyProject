@@ -53,7 +53,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: apiServer + "/Login/login",
+                    url: apiServer + "/api/Login/login",
                     data: {
                         UserName: u.val(),
                         UserPwd: p.val(),
@@ -61,10 +61,9 @@
                     },
                     success: function (data) {
                         if (data.code == 1) {
-                            $.cookie("BT.PRESERVATION", data.object, { expires: 12 });
                             window.location.href = "index.html";
                         } else {
-                            layWindow.layMsg(data.message);
+                            alert(data.message);
                         }
                     }
                 });

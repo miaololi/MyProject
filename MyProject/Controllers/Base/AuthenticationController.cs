@@ -9,16 +9,28 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace MyProject.Api.Controllers
 {
-    [Route("api/authentication")]
+    /// <summary>
+    /// 验证
+    /// </summary>
     public class AuthenticationController:Controller
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
         public AuthenticationController(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public IConfiguration Configuration { get; }
 
+        /// <summary>
+        /// 返回token
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Post()
         {
             var authorzationHeader = Request.Headers["Authorization"].First();

@@ -2,24 +2,26 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp2.1</TargetFramework>
+        <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+        <UserSecretsId>ca6738c6-18cb-4a57-b6ca-4ff5a0d2e8ff</UserSecretsId>
+        <ApplicationIcon />
+        <OutputType>Exe</OutputType>
+        <StartupObject />
     </PropertyGroup>
-
-    <ItemGroup>
-        <Folder Include="wwwroot\" />
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="CSRedisCore" Version="3.1.5" />
         <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MyProject.Bll\MyProject.Bll.csproj" />
-        <ProjectReference Include="..\MyProject.Models\MyProject.Models.csproj" />
-        <ProjectReference Include="..\MyProject.Tools\MyProject.Tools.csproj" />
+      <ProjectReference Include="..\MyProject.Bll\MyProject.Bll.csproj" />
+      <ProjectReference Include="..\MyProject.Del\MyProject.Dal.csproj" />
+      <ProjectReference Include="..\MyProject.Models\MyProject.Models.csproj" />
+      <ProjectReference Include="..\MyProject.Tools\MyProject.Tools.csproj" />
     </ItemGroup>
     
     <PropertyGroup>
@@ -28,9 +30,6 @@
     </PropertyGroup>
     
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <DocumentationFile></DocumentationFile>
-      <DefineConstants>TRACE</DefineConstants>
-      <PlatformTarget>AnyCPU</PlatformTarget>
-      <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+      <DocumentationFile>\bin\Debug\netcoreapp2.1\MyProjectApi.xml</DocumentationFile>
     </PropertyGroup>
 </Project>

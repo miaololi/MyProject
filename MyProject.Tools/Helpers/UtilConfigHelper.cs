@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace MyProject.Tools
 {
-    public class UtilConfigHelper
+    public class UtilConfigHelper: Controller
     {
         private static IConfiguration config;
 
