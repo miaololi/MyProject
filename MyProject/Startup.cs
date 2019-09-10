@@ -43,22 +43,24 @@ namespace MyProject
             #region 防跨域
             services.AddCors(opt =>
             {
-                opt.AddDefaultPolicy(
-                    builder =>
-                    {
-                        builder.
-                        AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowAnyOrigin()
-                        .AllowCredentials();
-                    });
+                opt.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowCredentials();
+                });
 
-                opt.AddPolicy("any", builder => {
+                string[] Origin = Configuration["customHeaders:Origin"].Split(",");
+                string Headers = Configuration["customHeaders:Headers"];
+                string Methods = Configuration["customHeaders:Methods"];
+                opt.AddPolicy("default", builder =>
+                {
                     builder
-                     .WithOrigins(new string[] { "http://localhost:8031" })//允许白名单站点跨域请求
-                    .AllowAnyMethod()//允许所有请求方法
-                    .AllowAnyHeader()//允许所有请求头
-                    .AllowCredentials();//允许所有cookie信息
+                    .WithOrigins(Origin)
+                    .WithHeaders(Headers)
+                    .WithMethods(Methods)
+                    .AllowCredentials();
                 });
             });
             #endregion

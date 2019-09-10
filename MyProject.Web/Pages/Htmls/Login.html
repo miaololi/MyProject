@@ -1,5 +1,4 @@
-﻿<!DOCTYPE html>
-<html>
+﻿<html>
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
@@ -50,15 +49,19 @@
             var login = function () {
                 var u = $("#u");
                 var p = $("#p");
-
+                var data = {
+                    UserName: u.val(),
+                    UserPwd: p.val(),
+                    Host: ClientIp.val()
+                };
                 $.ajax({
                     type: "POST",
                     url: apiServer + "/api/Login/login",
-                    contentType: 'application/json-patch+json',
-                    data: {
-                        UserName: u.val(),
-                        UserPwd: p.val(),
-                        Host: ClientIp.val()
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    crossDomain: true,
+                    xhrFields: {
+                        withCredentials: true
                     },
                     success: function (data) {
                         if (data.code == 1) {
