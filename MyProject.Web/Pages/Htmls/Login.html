@@ -54,6 +54,7 @@
                 $.ajax({
                     type: "POST",
                     url: apiServer + "/api/Login/login",
+                    contentType: 'application/json-patch+json',
                     data: {
                         UserName: u.val(),
                         UserPwd: p.val(),

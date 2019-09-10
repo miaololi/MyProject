@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -38,16 +40,28 @@ namespace MyProject
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+            #region 防跨域
+            services.AddCors(opt =>
             {
-                var serverSecret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:ServerSecret"]));
-                opt.TokenValidationParameters = new TokenValidationParameters
-                {
-                    IssuerSigningKey = serverSecret,
-                    ValidIssuer = Configuration["JWT:Issuer"],
-                    ValidAudience = Configuration["JWT:Audience"]
-                };
+                opt.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder.
+                        AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowAnyOrigin()
+                        .AllowCredentials();
+                    });
+
+                opt.AddPolicy("any", builder => {
+                    builder
+                     .WithOrigins(new string[] { "http://localhost:8031" })//允许白名单站点跨域请求
+                    .AllowAnyMethod()//允许所有请求方法
+                    .AllowAnyHeader()//允许所有请求头
+                    .AllowCredentials();//允许所有cookie信息
+                });
             });
+            #endregion
 
             //全局配置Json序列化处理
             services.AddMvc().AddJsonOptions(options =>
@@ -59,12 +73,20 @@ namespace MyProject
                 //设置时间格式
                 options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
             });
-            services.AddMvc().AddWebApiConventions();
-            services.AddCors();//防跨域
 
-            var connection = Configuration.GetConnectionString("DefaultConnection");
+            services.AddMvc().AddWebApiConventions();
+
+            var connection = Configuration.GetConnectionString("Def.Writer");
             services.AddDbContext<DbContext>(options => options.UseSqlServer(connection));
 
+
+            var csredis = new CSRedis.CSRedisClient(Configuration["RedisConnection"]);
+            //初始化 RedisHelper
+            RedisHelper.Initialization(csredis);
+            //注册mvc分布式缓存
+            services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
+
+            #region swagger
             //注册Swagger生成器，定义一个和多个Swagger 文档
             services.AddSwaggerGen(c =>
             {
@@ -75,6 +97,7 @@ namespace MyProject
                 var xmlPath = Path.Combine(basePath, "MyProjectApi.xml");
                 c.IncludeXmlComments(xmlPath);
             });
+            #endregion
         }
 
         /// 运行时调用此方法。使用此方法配置HTTP请求管道。
@@ -89,12 +112,11 @@ namespace MyProject
                 app.UseHsts();// 强制实施 HTTPS 在 ASP.NET Core
             }
 
-            app.UseCors(builder => builder.WithOrigins("*"));//防跨域
-
-            app.UseAuthentication();//使用验证
+            app.UseCors();//防跨域
 
             app.UseHttpsRedirection();//调用HTTPS重定向中间件
 
+            #region swagger
             //启用中间件服务生成Swagger作为JSON终结点
             app.UseSwagger();
             //启用中间件服务对swagger-ui，指定Swagger JSON终结点
@@ -102,6 +124,7 @@ namespace MyProject
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi v1");
             });
+            #endregion
 
             app.UseMvc();
         }

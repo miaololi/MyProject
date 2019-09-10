@@ -12,7 +12,7 @@ namespace MyProject.Tools
 
         public DbHelper()
         {
-            dsn = UtilConfigHelper.Configuration.GetConnectionString("DefaultConnection");
+            dsn = UtilConfigHelper.Configuration.GetConnectionString("Def.Writer");
         }
 
         public DbHelper(string strDSN)
@@ -222,7 +222,7 @@ namespace MyProject.Tools
         {
             try
             {
-                SqlDataAdapter comdAdapter = CreateAdapter(strsql);
+                SqlDataAdapter comdAdapter = CreateSqlAdapter(strsql);
                 int len = pars.Len;
                 if (len > 0)
                 {

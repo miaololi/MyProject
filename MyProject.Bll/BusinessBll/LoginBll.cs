@@ -1,4 +1,5 @@
-﻿using MyProject.Models;
+﻿using MyProject.Dal;
+using MyProject.Models;
 using MyProject.Tools;
 using System;
 using System.Data;
@@ -17,17 +18,12 @@ namespace MyProject.Bll
                     result.Message = "传参有误";
                     return result;
                 }
-                if (!string.IsNullOrEmpty(dto.UserName) && !string.IsNullOrEmpty(dto.UserPwd))
+                if (string.IsNullOrWhiteSpace(dto.UserName) || string.IsNullOrWhiteSpace(dto.UserPwd))
                 {
                     result.Message = "用户名或密码不可为空";
                     return result;
                 }
-                string sqlStr = @"SELECT top 1 * FROM dbo.e_Emp
-                    WHERE FUserName=@FUserName AND FPwd=@FPwd";
-                var pars = new DbParameters();
-                pars.Add("FUserName", dto.UserName);
-                pars.Add("FPwd", ExHelper.MD5Hash(dto.UserPwd.Trim()).ToLower());
-                DataTable dt = DbHelper.SqlDSN.CreateSqlDataTable(sqlStr, pars);
+                DataTable dt = LoginDal.GetEmpDT(dto.UserName, ExHelper.MD5Hash(dto.UserPwd).ToLower());
 
                 if (dt == null || dt.Rows.Count <= 0)
                 {
