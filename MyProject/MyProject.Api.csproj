@@ -10,8 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Caching.CSRedis" Version="3.0.51" />
-        <PackageReference Include="CSRedisCore" Version="3.1.5" />
+        <PackageReference Include="Caching.CSRedis" Version="3.1.6" />
+        <PackageReference Include="CSRedisCore" Version="3.1.8" />
         <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />

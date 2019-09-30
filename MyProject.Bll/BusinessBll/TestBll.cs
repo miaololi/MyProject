@@ -2,6 +2,7 @@
 using MyProject.Tools;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace MyProject.Bll
@@ -11,7 +12,8 @@ namespace MyProject.Bll
         public static Result TestHttp()
         {
             string baseUrl = "https://api.ooopn.com/ciba/api.php";
-            return HttpHelper.HttpGet(baseUrl);
+            Result result = HttpHelper.HttpGet(baseUrl);
+            return result;
         }
     }
 }
