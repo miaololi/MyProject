@@ -22,4 +22,10 @@
     <Folder Include="Config\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Aspose.Words">
+      <HintPath>..\Packages\Aspose Words\Aspose.Words.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

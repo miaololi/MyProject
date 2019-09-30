@@ -15,7 +15,7 @@ namespace MyProject.Dal
             var pars = new DbParameters();
             pars.Add("FUserName", userName);
             pars.Add("FPwd", UserPwd);
-            DataTable dt = DbHelper.SqlDSN.CreateSqlDataTable(sqlStr, pars);
+            DataTable dt = DbHelper.SqlObj.CreateSqlDataTable(sqlStr, pars);
             return dt;
         }
     }

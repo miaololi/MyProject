@@ -7,17 +7,24 @@ namespace MyProject.Tools
 {
     public class DbHelper
     {
-        public string dsn;
-        public static DbHelper SqlDSN { get { return new DbHelper(); } }
+        public string connStr;
+
+        public static DbHelper SqlObj
+        {
+            get
+            {
+                return new DbHelper();
+            }
+        }
 
         public DbHelper()
         {
-            dsn = UtilConfigHelper.Configuration.GetConnectionString("Def.Writer");
+            connStr = UtilConfigHelper.Configuration.GetConnectionString("Def.Writer");
         }
 
-        public DbHelper(string strDSN)
+        public DbHelper(string connName)
         {
-            dsn = UtilConfigHelper.Configuration.GetConnectionString(strDSN);
+            connStr = UtilConfigHelper.Configuration.GetConnectionString(connName);
         }
 
         #region 操作连接
@@ -46,17 +53,18 @@ namespace MyProject.Tools
             comd.Dispose();
         }
         #endregion
+
         #region 操作commd
         /// <summary>
-        /// 根据存储过程名生成comd对象
+        /// 执行存储过程，返回comd对象
         /// </summary>
         /// <param name="spName">存储过程名</param>
         /// <returns></returns>
-        public SqlCommand CreateComd(string spName)
+        private SqlCommand CreateComd(string spName)
         {
             try
             {
-                SqlConnection conn = new SqlConnection(dsn);
+                SqlConnection conn = new SqlConnection(connStr);
                 SqlCommand comd = conn.CreateCommand();
                 comd.CommandText = spName;
                 comd.CommandType = CommandType.StoredProcedure;
@@ -69,12 +77,12 @@ namespace MyProject.Tools
         }
 
         /// <summary>
-        /// 根据存储过程名和参数集生成comd对象
+        /// 执行存储过程，返回comd对象
         /// </summary>
         /// <param name="spName">存储过程名</param>
         /// <param name="pars">参数集</param>
         /// <returns></returns>
-        public SqlCommand CreateComd(string spName, DbParameters pars)
+        private SqlCommand CreateComd(string spName, DbParameters pars)
         {
             try
             {
@@ -96,17 +104,17 @@ namespace MyProject.Tools
         }
 
         /// <summary>
-        /// 根据sql生成sqlcomd对象
+        /// 执行SQL语句，返回comd对象
         /// </summary>
-        /// <param name="strSql">sql</param>
+        /// <param name="sqlStr">sqlStr</param>
         /// <returns></returns>
-        public SqlCommand CreateSqlComd(string strSql)
+        private SqlCommand CreateSqlComd(string sqlStr)
         {
             try
             {
-                SqlConnection conn = new SqlConnection(dsn);
+                SqlConnection conn = new SqlConnection(connStr);
                 SqlCommand comd = conn.CreateCommand();
-                comd.CommandText = strSql;
+                comd.CommandText = sqlStr;
                 comd.CommandType = CommandType.Text;
                 return comd;
             }
@@ -117,16 +125,16 @@ namespace MyProject.Tools
         }
 
         /// <summary>
-        /// 根据sql和参数集生成sqlcomd对象
+        /// 执行SQL语句，返回comd对象
         /// </summary>
-        /// <param name="strSql">sql</param>
+        /// <param name="sqlStr">sqlStr</param>
         /// <param name="pars">参数集</param>
         /// <returns></returns>
-        public SqlCommand CreateSqlComd(string strSql, DbParameters pars)
+        private SqlCommand CreateSqlComd(string sqlStr, DbParameters pars)
         {
             try
             {
-                SqlCommand comd = CreateSqlComd(strSql);
+                SqlCommand comd = CreateSqlComd(sqlStr);
                 int len = pars.Len;
                 if (len > 0)
                 {
@@ -142,11 +150,11 @@ namespace MyProject.Tools
                 throw new Exception(ex.Message);
             }
         }
-
         #endregion
+
         #region 操作sqlDataAdapter
         /// <summary>
-        ///  根据存储过程名，生成SqlDataAdapter对象
+        ///  执行存储过程，返回SqlDataAdapter对象
         /// </summary>
         /// <param name="spName">存储过程名</param>
         /// <returns></returns>
@@ -154,7 +162,7 @@ namespace MyProject.Tools
         {
             try
             {
-                SqlConnection conn = new SqlConnection(dsn);
+                SqlConnection conn = new SqlConnection(connStr);
                 SqlDataAdapter comdAdapter = new SqlDataAdapter(spName, conn);
                 comdAdapter.SelectCommand.CommandType = CommandType.StoredProcedure;
                 return comdAdapter;
@@ -166,7 +174,7 @@ namespace MyProject.Tools
         }
 
         /// <summary>
-        /// 根据存储过程名和参数，生成SqlDataAdapter对象
+        /// 执行存储过程，返回SqlDataAdapter对象
         /// </summary>
         /// <param name="spName">存储过程名</param>
         /// <param name="pars">参数集</param>
@@ -193,16 +201,16 @@ namespace MyProject.Tools
         }
 
         /// <summary>
-        /// 根据sql，生成SqlDataAdapter对象
+        /// 执行SQL语句，返回SqlDataAdapter对象
         /// </summary>
-        /// <param name="strsql">sql</param>
+        /// <param name="sqlStr">SQL语句</param>
         /// <returns></returns>
-        public SqlDataAdapter CreateSqlAdapter(string strsql)
+        public SqlDataAdapter CreateSqlAdapter(string sqlStr)
         {
             try
             {
-                SqlConnection conn = new SqlConnection(dsn);
-                SqlDataAdapter comdAdapter = new SqlDataAdapter(strsql, conn);
+                SqlConnection conn = new SqlConnection(connStr);
+                SqlDataAdapter comdAdapter = new SqlDataAdapter(sqlStr, conn);
                 comdAdapter.SelectCommand.CommandType = CommandType.Text;
                 return comdAdapter;
             }
@@ -213,16 +221,16 @@ namespace MyProject.Tools
         }
 
         /// <summary>
-        /// 根据sql和参数，生成SqlDataAdapter对象
+        /// 执行SQL语句，返回SqlDataAdapter对象
         /// </summary>
-        /// <param name="strsql">sql</param>
+        /// <param name="sqlStr">SQL语句</param>
         /// <param name="pars">参数集</param>
         /// <returns></returns>
-        public SqlDataAdapter CreateSqlAdapter(string strsql, DbParameters pars)
+        public SqlDataAdapter CreateSqlAdapter(string sqlStr, DbParameters pars)
         {
             try
             {
-                SqlDataAdapter comdAdapter = CreateSqlAdapter(strsql);
+                SqlDataAdapter comdAdapter = CreateSqlAdapter(sqlStr);
                 int len = pars.Len;
                 if (len > 0)
                 {
@@ -239,9 +247,10 @@ namespace MyProject.Tools
             }
         }
         #endregion
-        #region  创建 DataReader 对象
+
+        #region  操作SqlDataReader
         /// <summary>
-        /// 根据存储过程生成生SqlDataReader
+        /// 执行存储过程，返回SqlDataReader对象
         /// </summary>
         /// <param name="spName"></param>
         /// <returns></returns>
@@ -250,36 +259,39 @@ namespace MyProject.Tools
             SqlCommand comd = CreateComd(spName);
             return GetDataReader(comd);
         }
+
         /// <summary>
-        /// 根据存储过程和参数生成SqlDataReader
+        /// 执行存储过程，返回SqlDataReader对象
         /// </summary>
         /// <param name="spName"></param>
-        /// <param name="p"></param>
+        /// <param name="pars"></param>
         /// <returns></returns>
         public SqlDataReader CreateDataReader(string spName, DbParameters pars)
         {
             SqlCommand comd = CreateComd(spName, pars);
             return GetDataReader(comd);
         }
+
         /// <summary>
-        /// 根据SQL语句生成SqlDataReader
+        /// 执行SQL语句，返回SqlDataReader对象
         /// </summary>
-        /// <param name="strSql"></param>
+        /// <param name="sqlStr"></param>
         /// <returns></returns>
-        public SqlDataReader CreateSqlDataReader(string strSql)
+        public SqlDataReader CreateSqlDataReader(string sqlStr)
         {
-            SqlCommand comd = CreateSqlComd(strSql);
+            SqlCommand comd = CreateSqlComd(sqlStr);
             return GetDataReader(comd);
         }
+
         /// <summary>
-        /// 根据SQL语句和参数生成SqlDataReader
+        /// 执行SQL语句，返回SqlDataReader对象
         /// </summary>
-        /// <param name="strSql"></param>
-        /// <param name="p"></param>
+        /// <param name="sqlStr"></param>
+        /// <param name="pars"></param>
         /// <returns></returns>
-        public SqlDataReader CreateSqlDataReader(string strSql, DbParameters pars)
+        public SqlDataReader CreateSqlDataReader(string sqlStr, DbParameters pars)
         {
-            SqlCommand comd = CreateSqlComd(strSql, pars);
+            SqlCommand comd = CreateSqlComd(sqlStr, pars);
             return GetDataReader(comd);
         }
 
@@ -300,9 +312,10 @@ namespace MyProject.Tools
         }
         #endregion
         #endregion
-        #region 创建 DataTable 对象
+
+        #region 操作Dt对象
         /// <summary>
-        /// 根据存储过程创建 DataTable 
+        /// 执行存储过程，返回dt对象
         /// </summary>
         /// <param name="spName"></param>
         /// <returns></returns>
@@ -311,8 +324,9 @@ namespace MyProject.Tools
             SqlDataAdapter adapter = CreateAdapter(spName);
             return GetDataTable(adapter);
         }
+
         /// <summary>
-        /// 根据存储过程和参数创建 DataTable
+        /// 执行存储过程，返回dt对象
         /// </summary>
         /// <param name="spName"></param>
         /// <param name="pars"></param>
@@ -322,25 +336,27 @@ namespace MyProject.Tools
             SqlDataAdapter adapter = CreateAdapter(spName, pars);
             return GetDataTable(adapter);
         }
+
         /// <summary>
-        /// 根据SQL语句,创建DataTable
+        /// 执行SQL语句,返回dt对象
         /// </summary>
-        /// <param name="strSql"></param>
+        /// <param name="sqlStr"></param>
         /// <returns></returns>
-        public DataTable CreateSqlDataTable(string strSql)
+        public DataTable CreateSqlDataTable(string sqlStr)
         {
-            SqlDataAdapter adapter = CreateSqlAdapter(strSql);
+            SqlDataAdapter adapter = CreateSqlAdapter(sqlStr);
             return GetDataTable(adapter);
         }
+
         /// <summary>
-        /// 根据SQL语句和参数,创建DataTable
+        /// 执行SQL语句,返回dt对象
         /// </summary>
-        /// <param name="strSql"></param>
-        /// <param name="p"></param>
+        /// <param name="sqlStr"></param>
+        /// <param name="pars"></param>
         /// <returns></returns>
-        public DataTable CreateSqlDataTable(string strSql, DbParameters pars)
+        public DataTable CreateSqlDataTable(string sqlStr, DbParameters pars)
         {
-            SqlDataAdapter adapter = CreateSqlAdapter(strSql, pars);
+            SqlDataAdapter adapter = CreateSqlAdapter(sqlStr, pars);
             return GetDataTable(adapter);
         }
 
@@ -351,7 +367,6 @@ namespace MyProject.Tools
             {
                 DataTable dt = new DataTable();
                 adapter.Fill(dt);
-
                 return dt;
             }
             catch (System.Exception ex)
@@ -368,39 +383,52 @@ namespace MyProject.Tools
             }
         }
         #endregion
-
         #endregion
+
         #region 创建 Scalar 对象
         /// <summary>
-        /// 创建无参数的 Scalar 对象
+        /// 执行存储过程,返回scalar对象
         /// </summary>
+        /// <param name="spName"></param>
+        /// <returns></returns>
         public object CreateScalar(string spName)
         {
             SqlCommand comd = CreateComd(spName);
             return GetScalar(comd);
         }
+
         /// <summary>
-        /// 有参数的 Scalar 对象
+        /// 执行存储过程,返回scalar对象
         /// </summary>
+        /// <param name="spName"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
         public object CreateScalar(string spName, DbParameters pars)
         {
             SqlCommand comd = CreateComd(spName, pars);
             return GetScalar(comd);
         }
+
         /// <summary>
-        /// 根据SQL语句，创建Scalar对象
+        /// 执行SQL语句，返回Scalar对象
         /// </summary>
-        public object CreateSqlScalar(string strSql)
+        /// <param name="sqlStr"></param>
+        /// <returns></returns>
+        public object CreateSqlScalar(string sqlStr)
         {
-            SqlCommand comd = CreateSqlComd(strSql);
+            SqlCommand comd = CreateSqlComd(sqlStr);
             return GetScalar(comd);
         }
+
         /// <summary>
-        /// 根据SQL语句和参数，创建Scalar对象
+        /// 执行SQL语句，返回Scalar对象
         /// </summary>
-        public object CreateSqlScalar(string strSql, DbParameters pars)
+        /// <param name="sqlStr"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
+        public object CreateSqlScalar(string sqlStr, DbParameters pars)
         {
-            SqlCommand comd = CreateSqlComd(strSql, pars);
+            SqlCommand comd = CreateSqlComd(sqlStr, pars);
             return GetScalar(comd);
         }
 
@@ -423,10 +451,13 @@ namespace MyProject.Tools
         }
         #endregion
         #endregion
-        #region ** 执行数据库操作 - ToExecute() **
+
+        #region 执行cmd命令
         /// <summary>
-        /// 执行数据库操作
+        /// 执行cmd命令，返回条数
         /// </summary>
+        /// <param name="comd"></param>
+        /// <returns></returns>
         private int ToExecute(SqlCommand comd)
         {
             try
@@ -443,6 +474,11 @@ namespace MyProject.Tools
             }
         }
 
+        /// <summary>
+        /// 执行cmd命令，并返回结果中第一行的第一列的值
+        /// </summary>
+        /// <param name="comd"></param>
+        /// <returns></returns>
         private int ToExecuteInt(SqlCommand comd)
         {
             try
@@ -461,51 +497,67 @@ namespace MyProject.Tools
         }
         #endregion
 
-        #region ** 仅执行，不返回输出参数 **
+        #region 返回执行条数
         /// <summary>
-        /// 根据存储过程执行
+        /// 执行存储过程,返回执行条数
         /// </summary>
+        /// <param name="spName"></param>
+        /// <returns></returns>
         public int Execute(string spName)
         {
             SqlCommand comd = CreateComd(spName);
             return ToExecute(comd);
         }
+
         /// <summary>
-        /// 根据存储过程和参数执行
+        /// 执行存储过程,返回执行条数
         /// </summary>
+        /// <param name="spName"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
         public int Execute(string spName, DbParameters pars)
         {
             SqlCommand comd = CreateComd(spName, pars);
             return ToExecute(comd);
         }
+
         /// <summary> 
-        /// 执行sql语句
+        /// 执行SQL语句,返回执行条数
         /// </summary> 
-        public int ExecuteSql(string sql)
+        public int ExecuteSql(string sqlStr)
         {
-            SqlCommand comd = CreateSqlComd(sql);
+            SqlCommand comd = CreateSqlComd(sqlStr);
             return ToExecute(comd);
         }
 
-        /// <summary> 
-        /// 执行带参数的SQL语句
-        /// </summary> 
-        public int ExecuteSqlInt(string sql, DbParameters pars)
+        /// <summary>
+        /// 执行sql语句,返回执行条数
+        /// </summary>
+        /// <param name="sqlStr"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
+        public int ExecuteSql(string sqlStr, DbParameters pars)
         {
-            SqlCommand comd = CreateSqlComd(sql, pars);
+            SqlCommand comd = CreateSqlComd(sqlStr, pars);
+            return ToExecute(comd);
+        }
+
+        /// <summary>
+        /// 执行sql语句,返回第一个值
+        /// </summary>
+        /// <param name="sqlStr"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
+        public int ExecuteSqlInt(string sqlStr, DbParameters pars)
+        {
+            SqlCommand comd = CreateSqlComd(sqlStr, pars);
             return ToExecuteInt(comd);
         }
-        public int ExecuteSql(string sql, DbParameters pars)
-        {
-            SqlCommand comd = CreateSqlComd(sql, pars);
-            return ToExecute(comd);
-        }
-
         #endregion
 
         #region ** 执行并返回输出参数 **
         /// <summary>
-        /// 执行并返回输出参数
+        /// 执行存储过程，返回自定义输出参数
         /// </summary>
         public string ExecuteOut(string spName, DbParameters pars, string outParamName)
         {
@@ -530,8 +582,11 @@ namespace MyProject.Tools
         }
 
         /// <summary>
-        /// 执行并返回输出参数：默认输出参数 @Result Varchar(50)
+        /// 执行存储过程，返回默认输出参数 @Result Varchar(50)
         /// </summary>
+        /// <param name="spName"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
         public string ExecuteOut(string spName, DbParameters pars)
         {
             SqlCommand comd = CreateComd(spName, pars);
@@ -553,15 +608,17 @@ namespace MyProject.Tools
                 throw new Exception(ex.Message);
             }
         }
-        #endregion
 
-        #region ** 执行并返回输出参数 **
         /// <summary>
-        /// 执行存储过程，并返回输出参数
+        /// 执行存储过程，返回自定义输出参数
         /// </summary>
-        public string ExecuteReturn(string spName, DbParameters p, string retParam)
+        /// <param name="spName"></param>
+        /// <param name="pars"></param>
+        /// <param name="retParam"></param>
+        /// <returns></returns>
+        public string ExecuteReturn(string spName, DbParameters pars, string retParam)
         {
-            SqlCommand comd = CreateComd(spName, p);
+            SqlCommand comd = CreateComd(spName, pars);
             comd.Parameters.Add(new SqlParameter(retParam, SqlDbType.VarChar, 50));
             comd.Parameters[retParam].Direction = ParameterDirection.ReturnValue;
 
@@ -582,61 +639,16 @@ namespace MyProject.Tools
                 throw new Exception(ex.Message);
             }
         }
-        public string ExecuteReturn(string spName, DbParameters p)
-        {
-            SqlCommand comd = CreateComd(spName, p);
-            comd.Parameters.Add(new SqlParameter("ReturnValue", SqlDbType.VarChar, 50));
-            comd.Parameters["ReturnValue"].Direction = ParameterDirection.ReturnValue;
 
-            //comd.Parameters.Add(new SqlParameter("ReturnValue",SqlDbType.Int,4, ParameterDirection.ReturnValue, false, 0, 0,String.Empty, DataRowVersion.Default, null));
-
-            try
-            {
-                OpenConn(ref comd);
-                comd.ExecuteNonQuery();
-                object o = comd.Parameters["ReturnValue"].Value;
-                CloseConn(ref comd);
-
-                return (o == null) ? "" : o.ToString();
-            }
-            catch (Exception ex)
-            {
-                CloseConn(ref comd);
-                throw new Exception(ex.Message);
-            }
-        }
-        /// <summary> 
-        /// 执行Sql语句，并返回返回值
-        /// </summary> 
-        public string ExecuteSqlReturn(string sql, DbParameters pars, string retParam)
-        {
-            SqlCommand comd = CreateSqlComd(sql, pars);
-            comd.Parameters.Add(new SqlParameter(retParam, SqlDbType.VarChar, 50));
-            comd.Parameters[retParam].Direction = ParameterDirection.ReturnValue;
-
-            //comd.Parameters.Add(new SqlParameter("ReturnValue",SqlDbType.Int,4, ParameterDirection.ReturnValue, false, 0, 0,String.Empty, DataRowVersion.Default, null));
-
-            try
-            {
-                OpenConn(ref comd);
-                comd.ExecuteNonQuery();
-                object o = comd.Parameters[retParam].Value;
-                CloseConn(ref comd);
-
-                return (o == null) ? "" : o.ToString();
-            }
-            catch (Exception ex)
-            {
-                CloseConn(ref comd);
-                throw new Exception(ex.Message);
-            }
-        }
         /// <summary>
-        /// 根据Sql语句执行
+        /// 执行存储过程，返回默认输出参数ReturnValue
         /// </summary>
-        public string ExecuteSqlReturn(string sql, DbParameters pars)
+        /// <param name="spName"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
+        public string ExecuteReturn(string spName, DbParameters pars)
         {
-            SqlCommand comd = CreateSqlComd(sql, pars);
+            SqlCommand comd = CreateComd(spName, pars);
             comd.Parameters.Add(new SqlParameter("ReturnValue", SqlDbType.VarChar, 50));
             comd.Parameters["ReturnValue"].Direction = ParameterDirection.ReturnValue;
 
@@ -658,6 +670,66 @@ namespace MyProject.Tools
             }
         }
 
+        /// <summary>
+        /// 执行SQL 返回自定义参数
+        /// </summary>
+        /// <param name="sqlStr"></param>
+        /// <param name="pars"></param>
+        /// <param name="retParam"></param>
+        /// <returns></returns>
+        public string ExecuteSqlReturn(string sqlStr, DbParameters pars, string retParam)
+        {
+            SqlCommand comd = CreateSqlComd(sqlStr, pars);
+            comd.Parameters.Add(new SqlParameter(retParam, SqlDbType.VarChar, 50));
+            comd.Parameters[retParam].Direction = ParameterDirection.ReturnValue;
+
+            //comd.Parameters.Add(new SqlParameter("ReturnValue",SqlDbType.Int,4, ParameterDirection.ReturnValue, false, 0, 0,String.Empty, DataRowVersion.Default, null));
+
+            try
+            {
+                OpenConn(ref comd);
+                comd.ExecuteNonQuery();
+                object o = comd.Parameters[retParam].Value;
+                CloseConn(ref comd);
+
+                return (o == null) ? "" : o.ToString();
+            }
+            catch (Exception ex)
+            {
+                CloseConn(ref comd);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 执行SQL 返回默认输出参数ReturnValue
+        /// </summary>
+        /// <param name="sqlStr"></param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
+        public string ExecuteSqlReturn(string sqlStr, DbParameters pars)
+        {
+            SqlCommand comd = CreateSqlComd(sqlStr, pars);
+            comd.Parameters.Add(new SqlParameter("ReturnValue", SqlDbType.VarChar, 50));
+            comd.Parameters["ReturnValue"].Direction = ParameterDirection.ReturnValue;
+
+            //comd.Parameters.Add(new SqlParameter("ReturnValue",SqlDbType.Int,4, ParameterDirection.ReturnValue, false, 0, 0,String.Empty, DataRowVersion.Default, null));
+
+            try
+            {
+                OpenConn(ref comd);
+                comd.ExecuteNonQuery();
+                object o = comd.Parameters["ReturnValue"].Value;
+                CloseConn(ref comd);
+
+                return (o == null) ? "" : o.ToString();
+            }
+            catch (Exception ex)
+            {
+                CloseConn(ref comd);
+                throw new Exception(ex.Message);
+            }
+        }
         #endregion
     }
 }
