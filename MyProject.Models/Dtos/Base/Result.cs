@@ -22,6 +22,11 @@ namespace MyProject.Models
         public object Obj { get; set; }
 
         /// <summary>
+        /// json
+        /// </summary>
+        public string JsonObj { get; set; }
+
+        /// <summary>
         /// 分页参数
         /// </summary>
         public Page Page { get; set; }
