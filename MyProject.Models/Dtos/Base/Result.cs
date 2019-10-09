@@ -22,6 +22,11 @@ namespace MyProject.Models
         public object Obj { get; set; }
 
         /// <summary>
+        /// 扩展对象
+        /// </summary>
+        public object ObjEx { get; set; }
+
+        /// <summary>
         /// json
         /// </summary>
         public string JsonObj { get; set; }

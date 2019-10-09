@@ -83,7 +83,7 @@ namespace MyProject
             //services.AddDbContext<DbContext>(options => options.UseSqlServer(connection));
 
             //var mySqlconnection = Configuration.GetConnectionString("Def.MySql");
-            //services.AddDbContext<MySqlDb>(options => options.UseMySQL(mySqlconnection));
+            //services.AddDbContext<MySqlDbContext>(options => options.UseMySQL(mySqlconnection));
 
             var csredis = new CSRedis.CSRedisClient(Configuration["RedisConnection"]);
             //初始化 RedisHelper

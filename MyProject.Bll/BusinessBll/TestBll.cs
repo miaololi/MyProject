@@ -20,8 +20,19 @@ namespace MyProject.Bll
 
         public static Result GetTestInfo()
         {
-            List<TestInfo> list = null;//TestDal.GetTestInfo();
-            return new Result { Code = 1, Obj = list };
+            Result result = new Result() { Code = 0 };
+            try
+            {
+                List<TestInfo> list = TestDal.GetTestInfo();
+                result.Code = 1;
+                result.Obj = list;
+                return result;
+            }
+            catch(Exception ex)
+            {
+                result.Message = ex.Message;
+                return result;
+            }
         }
     }
 }
