@@ -23,8 +23,9 @@ namespace MyProject.Bll
                     result.Message = "用户名或密码不可为空";
                     return result;
                 }
-                DataTable dt = LoginDal.GetEmpDT(dto.UserName, ExHelper.MD5Hash(dto.UserPwd).ToLower());
 
+                DataTable dt = LoginDal.GetEmpDT(dto.UserName, ExHelper.MD5Hash(dto.UserPwd).ToLower());
+                
                 if (dt == null || dt.Rows.Count <= 0)
                 {
                     result.Message = "登录失败";
