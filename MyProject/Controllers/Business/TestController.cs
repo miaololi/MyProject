@@ -22,5 +22,15 @@ namespace MyProject.Api.Controllers
         {
             return TestBll.TestHttp();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public Result GetTestInfo()
+        {
+            return TestBll.GetTestInfo();
+        }
     }
 }

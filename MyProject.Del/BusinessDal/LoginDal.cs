@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MyProject.Dal
 {
-    public class LoginDal
+    public class LoginDal:BaseDal
     {
         public static DataTable GetEmpDT(string userName,string UserPwd)
         {

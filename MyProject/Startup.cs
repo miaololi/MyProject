@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using MyProject.Dal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
@@ -78,9 +79,11 @@ namespace MyProject
 
             services.AddMvc().AddWebApiConventions();
 
-            var connection = Configuration.GetConnectionString("Def.Writer");
-            services.AddDbContext<DbContext>(options => options.UseSqlServer(connection));
+            //var connection = Configuration.GetConnectionString("Def.Writer");
+            //services.AddDbContext<DbContext>(options => options.UseSqlServer(connection));
 
+            //var mySqlconnection = Configuration.GetConnectionString("Def.MySql");
+            //services.AddDbContext<MySqlDb>(options => options.UseMySQL(mySqlconnection));
 
             var csredis = new CSRedis.CSRedisClient(Configuration["RedisConnection"]);
             //初始化 RedisHelper
