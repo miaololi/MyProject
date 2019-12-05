@@ -24,13 +24,25 @@ namespace MyProject.Api.Controllers
         }
 
         /// <summary>
-        /// 
+        /// 获取测试信息
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         public Result GetTestInfo()
         {
             return TestBll.GetTestInfo();
+        }
+
+        /// <summary>
+        /// 添加测试
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public Result AddTestInfo(int id,string name)
+        {
+            return TestBll.AddTestInfo( id,  name);
         }
     }
 }

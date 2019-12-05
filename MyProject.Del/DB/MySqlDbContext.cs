@@ -11,6 +11,7 @@ namespace MyProject.Dal
     public class MySqlDbContext : DbContext
     {
         public DbSet<TestInfo> Tests{ get; set; }
+        public DbSet<EmpInfo> Emps { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
