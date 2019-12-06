@@ -10,7 +10,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <None Include="wwwroot\Htmls\Login.html" />
+    <None Include="wwwroot\Js\Global.js" />
+    <None Include="wwwroot\Js\jquery-1.8.3\jquery.js" />
+    <None Include="wwwroot\Js\jquery-1.8.3\jquery.min.js" />
+    <None Include="wwwroot\Js\jquery-1.9.1\jquery.cookie.js" />
+    <None Include="wwwroot\Js\jquery-1.9.1\jquery.form.js" />
+    <None Include="wwwroot\Js\jquery-1.9.1\jquery.js" />
+    <None Include="wwwroot\Js\jquery-1.9.1\jquery.min.js" />
+    <None Include="wwwroot\Js\jquery-1.9.1\Jquery.Query.js" />
   </ItemGroup>
 
 </Project>
