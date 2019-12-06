@@ -223,5 +223,97 @@ namespace MyProject.Tools.Helpers
                 return null;
             }
         }
+
+        /// <summary>
+        /// 将excel中的数据导入到DataTable中
+        /// </summary>
+        /// <param name="fileName"文件名</param>
+        /// <param name="sheetName">excel工作薄sheet的名称</param>
+        /// <param name="isFirstRowColumn">第一行是否是DataTable的列名</param>
+        /// <returns>返回的DataTable</returns>
+        public static DataTable ExcelToDataTable(string fileName, string sheetName, bool isFirstRowColumn)
+        {
+            try
+            {
+                var data = new DataTable();
+                var startRow = 0;
+                IWorkbook workbook = null;
+                ISheet sheet = null;
+
+                FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                if (fileName.ToLower().EndsWith(".xlsx")) //2007版本
+                    workbook = new XSSFWorkbook(fs);
+                else if (fileName.ToLower().EndsWith(".xls")) //2003版本
+                    workbook = new HSSFWorkbook(fs);
+
+                if (sheetName != null)
+                {
+                    sheet = workbook.GetSheet(sheetName);
+                    if (sheet == null) //如果没有找到指定的sheetName对应的sheet，则尝试获取第一个sheet
+                    {
+                        sheet = workbook.GetSheetAt(0);
+                    }
+                }
+                else
+                {
+                    sheet = workbook.GetSheetAt(0);
+                }
+                if (sheet != null)
+                {
+                    var firstRow = sheet.GetRow(0);
+                    int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
+
+                    if (isFirstRowColumn)
+                    {
+                        for (int i = firstRow.FirstCellNum; i < cellCount; ++i)
+                        {
+                            var cell = firstRow.GetCell(i);
+                            if (cell != null)
+                            {
+                                cell.SetCellType(CellType.String);
+                                var cellValue = cell.StringCellValue;
+                                if (!string.IsNullOrEmpty(cellValue))
+                                {
+                                    var column = new DataColumn(cellValue);
+                                    data.Columns.Add(column);
+                                }
+                            }
+                        }
+                        startRow = sheet.FirstRowNum + 1;
+                    }
+                    else
+                    {
+                        //生成列
+                        for (int i = firstRow.FirstCellNum; i < cellCount; ++i)
+                        {
+                            var column = new DataColumn("列" + i);
+                            data.Columns.Add(column);
+                        }
+                        startRow = sheet.FirstRowNum;
+                    }
+
+                    //最后一列的标号
+                    var rowCount = sheet.LastRowNum;
+                    for (var i = startRow; i <= rowCount; ++i)
+                    {
+                        var row = sheet.GetRow(i);
+                        if (row == null) continue; //没有数据的行默认是null　　　　　　　
+
+                        var dataRow = data.NewRow();
+                        for (int j = row.FirstCellNum; j < cellCount; ++j)
+                        {
+                            if (row.GetCell(j) != null) //同理，没有数据的单元格都默认是null
+                                dataRow[j] = row.GetCell(j).ToString();
+                        }
+                        data.Rows.Add(dataRow);
+                    }
+                }
+                return data;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }
