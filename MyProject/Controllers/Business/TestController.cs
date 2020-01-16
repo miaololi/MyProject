@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyProject.Bll;
 using MyProject.Models;
+using MyProject.Tools;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MyProject.Api.Controllers
 {
@@ -43,6 +42,31 @@ namespace MyProject.Api.Controllers
         public Result AddTestInfo(int id,string name)
         {
             return TestBll.AddTestInfo( id,  name);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public Result GetCoordinates(string address)
+        {
+            var result = new Result() { Code = 0 };
+            try
+            {
+                string ak = "RXUiCCU31yZ6dEkXzMz1qdfLhxdyLjp3";
+                string url = "http://api.map.baidu.com/geocoding/v3/";
+                string HttpUrl = string.Format(@"{0}?address={1}&output=json&ak={2}"
+                                               ,url, address , ak);
+                result.Code = 1;
+                result.Obj= HttpHelper.HttpGet(HttpUrl);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+                return result;
+            }
         }
     }
 }

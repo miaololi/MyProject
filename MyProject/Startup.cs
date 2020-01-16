@@ -95,6 +95,7 @@ namespace MyProject
                 var basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);//获取应用程序所在目录（绝对，不受工作目录影响，建议采用此方法获取路径）
                 var xmlPath = Path.Combine(basePath, "MyProjectApi.xml");
                 c.IncludeXmlComments(xmlPath);
+                
             });
             #endregion
         }
@@ -122,6 +123,7 @@ namespace MyProject
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi v1");
+                
             });
             #endregion
 

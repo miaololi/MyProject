@@ -176,5 +176,28 @@ namespace MyProject.Tools
             }
         }
         #endregion
+
+        #region 获取备注
+        /// <summary>
+        /// 获取备注
+        /// </summary>
+        /// <param name="enumValue"></param>
+        /// <returns></returns>
+        public static string GetRemark(this Enum enumValue)
+        {
+            Type type = enumValue.GetType();
+            FieldInfo field = type.GetField(enumValue.ToString());
+            if (field.IsDefined(typeof(RemarkAttribute), true))
+            {
+                RemarkAttribute remarkAttribute = (RemarkAttribute)field.GetCustomAttribute(typeof(RemarkAttribute));
+                return remarkAttribute.Remark;
+            }
+            else
+            {
+                return enumValue.ToString();
+            }
+        }
+        #endregion
     }
 }
+
