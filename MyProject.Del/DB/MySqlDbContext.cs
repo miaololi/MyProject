@@ -16,7 +16,7 @@ namespace MyProject.Dal
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            var mySqlconnection =UtilConfigHelper.Configuration.GetConnectionString("Def.MySql");
+            var mySqlconnection = "";// UtilConfigHelper.Configuration.GetConnectionString("Def.MySql");
             optionsBuilder.UseMySQL(mySqlconnection);//配置连接字符串
         }
     }

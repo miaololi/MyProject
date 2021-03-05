@@ -76,7 +76,7 @@ namespace MyProject.Tools
             }
         }
 
-        public static string HttpPost(string url, string postData = null, string contentType = null, int timeOut = 30, Dictionary<string, string> headers = null)
+        public static string HttpPost(string url, string postData = null, string contentType = null, Dictionary<string, string> headers = null)
         {
             postData = postData ?? "";
             using (HttpClient client = new HttpClient())
@@ -97,18 +97,16 @@ namespace MyProject.Tools
             }
         }
 
-        public static string HttpGet(string url, int timeOut = 30, Dictionary<string, string> headers = null)
+        public static string HttpGet(string url, Dictionary<string, string> headers = null)
         {
-            using (HttpClient client = new HttpClient())
+            using HttpClient client = new HttpClient();
+            if (headers != null)
             {
-                if (headers != null)
-                {
-                    foreach (var header in headers)
-                        client.DefaultRequestHeaders.Add(header.Key, header.Value);
-                }
-                HttpResponseMessage response = client.GetAsync(url).Result;
-                return response.Content.ReadAsStringAsync().Result;
+                foreach (var header in headers)
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
             }
+            HttpResponseMessage response = client.GetAsync(url).Result;
+            return response.Content.ReadAsStringAsync().Result;
         }
     }
 }

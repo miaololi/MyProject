@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Microsoft.Extensions.Hosting;
 using Swashbuckle.AspNetCore.Swagger;
 using System.IO;
 
@@ -61,15 +60,15 @@ namespace MyProject
             #endregion
 
             //全局配置Json序列化处理
-            services.AddMvc().AddJsonOptions(options =>
-            {
-                // 忽略循环引用
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                //不使用驼峰样式的key
-                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-                //设置时间格式
-                options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-            });
+            //services.AddMvc().AddJsonOptions(options =>
+            //{
+            //    // 忽略循环引用
+            //    options.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //    //不使用驼峰样式的key
+            //    options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+            //    //设置时间格式
+            //    options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
+            //});
 
             services.AddMvc().AddWebApiConventions();
 
@@ -101,9 +100,9 @@ namespace MyProject
         }
 
         /// 运行时调用此方法。使用此方法配置HTTP请求管道。
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())//判断是否是环境变量
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -127,7 +126,7 @@ namespace MyProject
             });
             #endregion
 
-            app.UseMvc();
+            //app.UseMvc();
         }
     }
 }

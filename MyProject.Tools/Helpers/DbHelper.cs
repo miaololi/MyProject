@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -19,12 +18,12 @@ namespace MyProject.Tools
 
         public DbHelper()
         {
-            connStr = UtilConfigHelper.Configuration.GetConnectionString("Def.Writer");
+            //connStr = UtilConfigHelper.Configuration.GetConnectionString("Def.Writer");
         }
 
         public DbHelper(string connName)
         {
-            connStr = UtilConfigHelper.Configuration.GetConnectionString(connName);
+            //connStr = UtilConfigHelper.Configuration.GetConnectionString(connName);
         }
 
         #region 操作连接

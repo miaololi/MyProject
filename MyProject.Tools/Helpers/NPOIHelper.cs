@@ -206,7 +206,7 @@ namespace MyProject.Tools.Helpers
                     if (colLength > 100) { 
                         colLength = 100;
                     }
-                    colLength = colLength + 4;
+                    colLength += 4;
                     sheet.SetColumnWidth(i, colLength * 256 + 200); // 200为常量
                     colLength = 0;
                 }
@@ -220,6 +220,7 @@ namespace MyProject.Tools.Helpers
             }
             catch (Exception ex)
             {
+                var a = ex.Message;
                 return null;
             }
         }
@@ -312,6 +313,7 @@ namespace MyProject.Tools.Helpers
             }
             catch (Exception ex)
             {
+                var a = ex.Message;
                 return null;
             }
         }
