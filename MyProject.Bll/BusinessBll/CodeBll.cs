@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 
 namespace MyProject.Bll
 {
@@ -32,7 +30,7 @@ namespace MyProject.Bll
             {
                 chkCode = chkCode + character[rnd.Next(character.Length)];
             }
-            //RedisHelper.Set(guid, chkCode);
+            RedisHelper.Set(guid, chkCode);
             //创建绘图图面
             var bmp = new Bitmap(codeW, codeH);
             var g = Graphics.FromImage(bmp);

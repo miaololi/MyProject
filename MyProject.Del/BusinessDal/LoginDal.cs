@@ -1,8 +1,7 @@
 ﻿using MyProject.Tools;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
+using Dapper;
+using System.Data.SqlClient;
 
 namespace MyProject.Dal
 {
@@ -17,6 +16,18 @@ namespace MyProject.Dal
             pars.Add("FPwd", UserPwd);
             DataTable dt = DbHelper.SqlObj.CreateSqlDataTable(sqlStr, pars);
             return dt;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static DataTable GetDt()
+        {
+            IDbConnection conn = new SqlConnection("Data Source=.;Initial Catalog=DataMip;Integrated Security=True;MultipleActiveResultSets=True");
+
+            var result = conn.Execute("Insert into Users values (@UserName, @Email, @Address)",
+                                   new { UserName = "jack", Email = "380234234@qq.com", Address = "上海" });
+            return null;
         }
     }
 }

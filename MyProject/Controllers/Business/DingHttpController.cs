@@ -28,7 +28,17 @@ namespace MyProject.Api.Controllers.Business
         [HttpGet]
         public Result GetDingUser(string userID)
         {
-            return DingHttpBll.GetDingUser(userID);
+            Result result = new Result() { Code = 0 };
+            try
+            {
+                result.Code = 0;
+                result.Obj= DingHttpBll.GetDingUser(userID);
+            }
+            catch (System.Exception ex)
+            {
+                result.Message = ex.Message;
+            }
+            return result;
         }
     }
 }
