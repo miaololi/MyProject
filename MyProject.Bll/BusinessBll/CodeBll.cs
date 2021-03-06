@@ -28,7 +28,7 @@ namespace MyProject.Bll
             var rnd = new Random();
             for (i = 0; i < 4; i++)
             {
-                chkCode = chkCode + character[rnd.Next(character.Length)];
+                chkCode += character[rnd.Next(character.Length)];
             }
             RedisHelper.Set(guid, chkCode);
             //创建绘图图面

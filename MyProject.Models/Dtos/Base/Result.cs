@@ -31,6 +31,11 @@ namespace MyProject.Models
         public object ObjEx { get; set; }
 
         /// <summary>
+        /// 字符串
+        /// </summary>
+        public string StrOjb { get; set; }
+
+        /// <summary>
         /// json
         /// </summary>
         public string JsonObj { get; set; }

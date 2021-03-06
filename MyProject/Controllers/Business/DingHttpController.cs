@@ -23,22 +23,32 @@ namespace MyProject.Api.Controllers.Business
         /// <summary>
         /// 获取钉钉用户信息
         /// </summary>
-        /// <param name="userID"></param>
+        /// <param name="mobile"></param>
         /// <returns></returns>
         [HttpGet]
-        public Result GetDingUser(string userID)
+        public Result GetDingUser(string mobile)
         {
             Result result = new Result() { Code = 0 };
             try
             {
-                result.Code = 0;
-                result.Obj= DingHttpBll.GetDingUser(userID);
+                result.Code = 1;
+                result.Obj= DingHttpBll.GetDingUser(mobile);
             }
             catch (System.Exception ex)
             {
                 result.Message = ex.Message;
             }
             return result;
+        }
+
+        /// <summary>
+        /// 发起钉钉审批
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public Result AddApproval()
+        {
+            return DingHttpBll.AddApproval();
         }
     }
 }

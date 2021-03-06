@@ -94,7 +94,7 @@ namespace MyProject.Tools.Helpers
                     headStyle.TopBorderColor = 8;
                     IFont font = workbook.CreateFont();
                     font.FontHeightInPoints = 20;
-                    font.Boldweight = 700;
+                    font.IsBold = true;
                     headStyle.SetFont(font);
 
                     headerRow.GetCell(0).CellStyle = headStyle;
@@ -311,8 +311,7 @@ namespace MyProject.Tools.Helpers
             }
             catch (Exception ex)
             {
-                var a = ex.Message;
-                return null;
+                throw ex;
             }
         }
     }

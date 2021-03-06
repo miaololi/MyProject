@@ -4,9 +4,10 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
+using MyProject.Tools;
+using System;
 using System.IO;
-using System.Text.Json;
 
 namespace MyProject
 {
@@ -32,59 +33,41 @@ namespace MyProject
         /// This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //#region 防跨域
-            //services.AddCors(opt =>
-            //{
-            //    opt.AddDefaultPolicy(builder =>
-            //    {
-            //        builder.AllowAnyHeader()
-            //        .AllowAnyMethod()
-            //        .AllowAnyOrigin()
-            //        .AllowCredentials();
-            //    });
+            var csredis = new CSRedis.CSRedisClient(Configuration["RedisConnection"]);
+            //初始化 RedisHelper
+            RedisHelper.Initialization(csredis);
+            //注册mvc分布式缓存
+            services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
 
-            //    string[] Origin = Configuration["customHeaders:Origin"].Split(",");
-            //    string Headers = Configuration["customHeaders:Headers"];
-            //    string Methods = Configuration["customHeaders:Methods"];
-            //    opt.AddPolicy("default", builder =>
-            //    {
-            //        builder
-            //        .WithOrigins(Origin)
-            //        .WithHeaders(Headers)
-            //        .WithMethods(Methods)
-            //        .AllowCredentials();
-            //    });
-            //});
-            //#endregion
-            //var csredis = new CSRedis.CSRedisClient(Configuration["RedisConnection"]);
-            ////初始化 RedisHelper
-            //RedisHelper.Initialization(csredis);
-            ////注册mvc分布式缓存
-            //services.AddSingleton<IDistributedCache>(new Microsoft.Extensions.Caching.Redis.CSRedisCache(RedisHelper.Instance));
+            // 添加Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Demo", Version = "v1" });
+                // 获取xml文件名
+                //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlFile = "MyProjectApi.xml";
+                // 获取xml文件路径
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                // 添加控制器层注释，true表示显示控制器注释
+                c.IncludeXmlComments(xmlPath, true);
+            });
 
-            //#region swagger
-            ////注册Swagger生成器，定义一个和多个Swagger 文档
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc("v1", new Info { Title = "WebApi", Version = "1.0" });
-
-            //    // 为 Swagger JSON and UI设置xml文档注释路径
-            //    var basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);//获取应用程序所在目录（绝对，不受工作目录影响，建议采用此方法获取路径）
-            //    var xmlPath = Path.Combine(basePath, "MyProjectApi.xml");
-            //    c.IncludeXmlComments(xmlPath);
-
-            //});
-            //#endregion
-            ////全局配置Json序列化处理
-            //services.AddControllers().AddJsonOptions(options =>
-            //{
-            //    options.JsonSerializerOptions.WriteIndented = true;//格式化json字符串
-            //    options.JsonSerializerOptions.AllowTrailingCommas = true;   //可以结尾有逗号                       
-            //    options.JsonSerializerOptions.IgnoreNullValues = true;                             //可以有空值,转换json去除空值属性
-            //    options.JsonSerializerOptions.IgnoreReadOnlyProperties = true;                        //忽略只读属性
-            //    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;                   //忽略大小写
-            //    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;    //命名方式是默认还是CamelCase
-            //});
+            services.AddControllers().AddJsonOptions(options => {
+                //格式化日期时间格式
+                options.JsonSerializerOptions.Converters.Add(new DatetimeJsonConverter());
+                //数据格式首字母小写
+                //options.JsonSerializerOptions.PropertyNamingPolicy =JsonNamingPolicy.CamelCase;
+                //数据格式原样输出
+                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                //取消Unicode编码
+                options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All);
+                //忽略空值
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+                //允许额外符号
+                options.JsonSerializerOptions.AllowTrailingCommas = true;
+                //反序列化过程中属性名称是否使用不区分大小写的比较
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
+            });
 
             services.AddControllers();
         }
@@ -97,20 +80,16 @@ namespace MyProject
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseCors();//防跨域
+            // 添加Swagger有关中间件
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Demo v1");
+            });
+
             app.UseHttpsRedirection();//调用HTTPS重定向中间件
             app.UseRouting();
             app.UseAuthorization();
-
-            #region swagger
-            //启用中间件服务生成Swagger作为JSON终结点
-            //app.UseSwagger();
-            ////启用中间件服务对swagger-ui，指定Swagger JSON终结点
-            //app.UseSwaggerUI(c =>
-            //{
-            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApi v1");
-            //});
-            #endregion
 
             app.UseEndpoints(endpoints =>
             {
