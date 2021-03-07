@@ -222,7 +222,7 @@ namespace MyProject.Bll
                 new FormComponentValueVoDomain
                 {
                     Name = "日期",
-                    Value = "2021-3-6 17:22:14"
+                    Value = "2021-03-06"
                 },
                 new FormComponentValueVoDomain
                 {
