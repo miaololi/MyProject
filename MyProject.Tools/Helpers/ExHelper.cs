@@ -198,6 +198,61 @@ namespace MyProject.Tools
             }
         }
         #endregion
+        #region 转换时间戳
+        /// <summary>
+        ///  时间戳转本地时间-时间戳精确到秒
+        /// </summary> 
+        public static DateTime ToLocalTimeDateBySeconds(this long unix)
+        {
+            var dto = DateTimeOffset.FromUnixTimeSeconds(unix);
+            return dto.ToLocalTime().DateTime;
+        }
+
+        /// <summary>
+        ///  时间转时间戳Unix-时间戳精确到秒
+        /// </summary> 
+        public static long ToUnixTimestampBySeconds(this DateTime dt)
+        {
+            DateTimeOffset dto = new DateTimeOffset(dt);
+            return dto.ToUnixTimeSeconds();
+        }
+
+
+        /// <summary>
+        ///  时间戳转本地时间-时间戳精确到毫秒
+        /// </summary> 
+        public static DateTime ToLocalTimeDateByMilliseconds(this long unix)
+        {
+            var dto = DateTimeOffset.FromUnixTimeMilliseconds(unix);
+            return dto.ToLocalTime().DateTime;
+        }
+
+        /// <summary>
+        ///  时间转时间戳Unix-时间戳精确到毫秒
+        /// </summary> 
+        public static long ToUnixTimestampByMilliseconds(this DateTime dt)
+        {
+            DateTimeOffset dto = new DateTimeOffset(dt);
+            return dto.ToUnixTimeMilliseconds();
+        }
+        #endregion
+
+        /// <summary>
+        /// 加签
+        /// </summary>
+        /// <param name="robotSecret"></param>
+        /// <param name="zTime">当前时间戳</param>
+        /// <returns></returns>
+        public static string AddSign(string robotSecret, long zTime)
+        {
+            string stringToSign = zTime + "\n" + robotSecret;
+            var encoding = new System.Text.UTF8Encoding();
+            byte[] keyByte = encoding.GetBytes(robotSecret);
+            byte[] messageBytes = encoding.GetBytes(stringToSign);
+            using var hmacsha256 = new HMACSHA256(keyByte);
+            byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
+            return System.Web.HttpUtility.UrlEncode(Convert.ToBase64String(hashmessage), Encoding.UTF8);
+        }
     }
 }
 

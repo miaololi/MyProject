@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="../Js/style1.css">
+    <link rel="stylesheet" href="../Js/layui.css">
+    <script type="text/javascript" src="../Js/jquery-1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../Js/jquery.SuperSlide.2.1.1.js"></script>
+</head>
+<body>
+        <div class="wrap">
+            <div class="content">
+                <div class="head">
+                </div>
+                <table class="list_tt">
+                    <tbody>
+                        <tr>
+                            <td>需求人</td>
+                            <td>需求时间</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="list_gd" id="qylist">
+                </div>
+                <script>
+                    $(function () {
+                        getData();
+                        setInterval(function () {
+                            getData();
+                        }, 300000);
+                    });
+
+                    function getData() {
+                        //$.ajax({
+                        //    url: 'GetCurUser.ashx',
+                        //    type: "post",
+                        //    async: false,
+                        //    data: { "act": "getxqdata", "cs": "dh:'',yysd:''" },
+                        //    dataType: 'json',
+                        //    success: function (datas, status, xhr) {
+
+                        //        //var data = datas.ReturnData.BizObjectArray;
+                        //        // alert(JSON.stringify(data));
+                               
+                        //    },
+                        //    error: function (xhr, errorType, error) {
+                        //        //alert(errorType + ', ' + error);
+                        //    }
+                        //});
+
+                        var data = [{ "a": 1, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 2, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 3, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 4, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 5, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 6, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 7, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 8, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 9, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 10, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 11, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 12, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 13, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 14, "CreatedTime": "2021-3-9 09:43:48" },
+                            { "a": 15, "CreatedTime": "2021-3-9 09:43:48" }
+                        ];
+                        var sStr = "";
+                        sStr = "<div class=\"txtMarquee-top\">";
+                        sStr = sStr + "<div class=\"bd\">";
+                        sStr = sStr + "	<ul class=\"infoList\">";
+                        let newArr = [];
+                        $.each(data, function (k, v) {
+                            let index = newArr.indexOf(data[k].a);
+                            if (index == -1) {
+                                newArr.push(data[k].a);
+                                sStr = sStr + "	   <li>";
+                                sStr = sStr + "	      <div class='inlist_line'>";
+                                sStr = sStr + "	          <div class='inlist_tt'><div>" + data[k].a + "</div></div>";
+                                sStr = sStr + "	          <div class='inlist_tt'><div>" + data[k].CreatedTime + "</div></div>";
+                                sStr = sStr + "	      </div>";
+                                sStr = sStr + "	  </li>";
+                            }
+                        });
+
+                        sStr = sStr + "	</ul>";
+                        sStr = sStr + "	</div>";
+                        sStr = sStr + "	</div>";
+                        $('#qylist').empty();
+                        $('#qylist').append(sStr);
+                        jQuery(".txtMarquee-top").slide({ mainCell: ".bd ul", autoPlay: true, effect: "topMarquee", vis: 10, interTime: 50 });
+
+                    }
+                </script>
+            </div>
+        </div>
+</body>
+</html>

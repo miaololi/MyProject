@@ -40,5 +40,9 @@
       <DocumentationFile>\bin\Debug\netcoreapp2.1\MyProjectApi.xml</DocumentationFile>
     </PropertyGroup>
     
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <DocumentationFile>obj\Release\netcoreapp3.1\MyProjectApi.xml</DocumentationFile>
+    </PropertyGroup>
+    
     <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="http://json.schemastore.org/asmdef" /></VisualStudio></ProjectExtensions>
 </Project>

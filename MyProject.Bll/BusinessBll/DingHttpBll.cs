@@ -2,7 +2,10 @@
 using DingTalk.Api.Request;
 using DingTalk.Api.Response;
 using MyProject.Models;
+using MyProject.Tools;
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using static DingTalk.Api.Request.OapiProcessinstanceCreateRequest;
 
 namespace MyProject.Bll
@@ -29,7 +32,7 @@ namespace MyProject.Bll
                 return token;
             }
 
-            IDingTalkClient client = new DefaultDingTalkClient(dingUrl+"/gettoken");
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/gettoken");
             OapiGettokenRequest req = new OapiGettokenRequest
             {
                 Appkey = appkey,
@@ -40,7 +43,7 @@ namespace MyProject.Bll
             if (rsp.Body != null)
             {
                 token = rsp.AccessToken;
-                RedisHelper.Set("DingToken", token,expireSeconds:7200);
+                RedisHelper.Set("DingToken", token, expireSeconds: 7200);
                 return token;
             }
             return token;
@@ -72,7 +75,7 @@ namespace MyProject.Bll
             }
             return token;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -102,7 +105,7 @@ namespace MyProject.Bll
         {
             Result result = new Result() { Code = 1 };
             string accessToken = GetDingToken();
-            IDingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/user/get_by_mobile");
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/user/get_by_mobile");
             OapiUserGetByMobileRequest req = new OapiUserGetByMobileRequest
             {
                 Mobile = Mobile
@@ -117,7 +120,7 @@ namespace MyProject.Bll
             {
                 result.Code = 0;
                 result.Obj = rsp;
-                result.Message = rsp.ErrMsg;
+                result.Message = rsp.Errmsg;
             }
             else
             {
@@ -134,7 +137,7 @@ namespace MyProject.Bll
         public static OapiSnsGetuserinfoBycodeResponse GetDingUserInfoByCode()
         {
             string accessToken = GetDingToken();
-            IDingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/sns/getuserinfo_bycode");
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/sns/getuserinfo_bycode");
             OapiSnsGetuserinfoBycodeRequest req = new OapiSnsGetuserinfoBycodeRequest();
             OapiSnsGetuserinfoBycodeResponse rsp = client.Execute(req, accessToken);
             return rsp;
@@ -167,7 +170,7 @@ namespace MyProject.Bll
                 {
                     result.Code = 0;
                     result.Obj = rsp;
-                    result.Message = rsp.ErrMsg;
+                    result.Message = rsp.Errmsg;
                 }
                 else
                 {
@@ -237,11 +240,93 @@ namespace MyProject.Bll
                 Approvers = "",//审批人列表
                 //CcList = curUser, //抄送人
                 //CcPosition = "START",//抄送时间
-                FormComponentValues_= formComponentValues
+                FormComponentValues_ = formComponentValues
             };
             req.SetHttpMethod("Post");
             OapiProcessinstanceCreateResponse rsp = client.Execute(req, accessToken);
             result.Obj = rsp;
+            return result;
+        }
+
+        /// <summary>
+        /// 根据code获取客户ID
+        /// </summary>
+        /// <returns></returns>
+        public static Result GetFailCallBackList()
+        {
+            Result result = new Result() { Code = 1 };
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/call_back/get_call_back_failed_result");
+            OapiCallbackFailrecordListRequest req = new OapiCallbackFailrecordListRequest
+            {
+            };
+            req.SetHttpMethod("GET");
+            OapiCallbackFailrecordListResponse rsp = client.Execute(req, accessToken);
+            if (rsp != null && rsp.Errcode == 0)
+            {
+                result.Obj = rsp;
+            }
+            else if (rsp != null && rsp.Errcode != 0)
+            {
+                result.Code = 0;
+                result.Obj = rsp;
+                result.Message = rsp.Errmsg;
+            }
+            else
+            {
+                result.Code = 0;
+                result.Message = "获取钉钉回调失败列表有误";
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 发送机器人推送
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static Result SendRobotMsg(string msg)
+        {
+            Result result = new Result() { Code=1};
+            string robotToken = "da95d6bcd4e389e3bce4eb518eb08dc23a6f315ea5987eb247c21989f2d00376";
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/robot/send");
+            OapiRobotSendRequest req = new OapiRobotSendRequest()
+            {
+                Msgtype = "text",
+                Text_ = new OapiRobotSendRequest.TextDomain
+                {
+                    Content = "推送:"+ msg
+                },
+                At_ = new OapiRobotSendRequest.AtDomain
+                {
+                    AtMobiles =new List<string> { 
+                        "13968414187" 
+                    },
+                    IsAtAll = false
+                }
+            };
+            DateTime timeNow = DateTime.Now;
+            long timestamp = timeNow.ToUnixTimestampByMilliseconds();
+            String secret = "SEC9070624c833e627790c5aaad181a96c050cbc5e43c1653a09b65259f1a67f091";
+            req.AddOtherParameter("sign", ExHelper.AddSign(secret, timestamp));
+            req.SetHttpMethod("POST");
+            OapiRobotSendResponse rsp = client.Execute(req, robotToken, timeNow);
+            if (rsp != null && rsp.Errcode == 0)
+            {
+                result.Obj = rsp;
+                result.Message = "发送成功";
+            }
+            else if (rsp != null && rsp.Errcode != 0)
+            {
+                result.Code = 0;
+                result.Obj = rsp;
+                result.Message = rsp.Errmsg;
+            }
+            else
+            {
+                result.Code = 0;
+                result.Message = "发送机器人推送失败";
+            }
             return result;
         }
     }

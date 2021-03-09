@@ -49,11 +49,11 @@ namespace MyProject.Tools.Helpers
             /**
              * 将和钉钉开放平台同步的消息体加密,返回加密Map
              */
-            public Dictionary<String, String> getEncryptedMap(String plaintext)
+            public Dictionary<String, String> GetEncryptedMap(String plaintext)
             {
 
                 var time = DateTime.Now.Millisecond;
-                return getEncryptedMap(plaintext, time);
+                return GetEncryptedMap(plaintext, time);
             }
 
             /**
@@ -64,20 +64,20 @@ namespace MyProject.Tools.Helpers
              * @return
              * @throws DingTalkEncryptException
              */
-            public Dictionary<String, String> getEncryptedMap(String plaintext, long timeStamp)
+            public Dictionary<String, String> GetEncryptedMap(String plaintext, long timeStamp)
             {
                 if (null == plaintext)
                 {
                     throw new DingTalkEncryptException(DingTalkEncryptException.ENCRYPTION_PLAINTEXT_ILLEGAL);
                 }
-                var nonce = Utils.getRandomStr(RANDOM_LENGTH);
+                var nonce = Utils.GetRandomStr(RANDOM_LENGTH);
                 if (null == nonce)
                 {
                     throw new DingTalkEncryptException(DingTalkEncryptException.ENCRYPTION_NONCE_ILLEGAL);
                 }
 
-                String encrypt = this.encrypt(nonce, plaintext);
-                String signature = getSignature(token, timeStamp.ToString(), nonce, encrypt);
+                String encrypt = this.Encrypt(nonce, plaintext);
+                String signature = GetSignature(token, timeStamp.ToString(), nonce, encrypt);
                 Dictionary<String, String> resultMap = new Dictionary<String, String>
                 {
                     ["msg_signature"] = signature,
@@ -97,16 +97,16 @@ namespace MyProject.Tools.Helpers
              * @return                  解密后的原文
              * @throws DingTalkEncryptException
              */
-            public String getDecryptMsg(String msgSignature, String timeStamp, String nonce, String encryptMsg)
+            public String GetDecryptMsg(String msgSignature, String timeStamp, String nonce, String encryptMsg)
             {
                 //校验签名
-                String signature = getSignature(token, timeStamp, nonce, encryptMsg);
+                String signature = GetSignature(token, timeStamp, nonce, encryptMsg);
                 if (!signature.Equals(msgSignature))
                 {
                     throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_SIGNATURE_ERROR);
                 }
                 // 解密
-                String result = decrypt(encryptMsg);
+                String result = Decrypt(encryptMsg);
                 return result;
             }
 
@@ -116,13 +116,13 @@ namespace MyProject.Tools.Helpers
              * @param text 需要加密的明文
              * @return 加密后base64编码的字符串
              */
-            private String encrypt(String random, String plaintext)
+            private String Encrypt(String random, String plaintext)
             {
                 try
                 {
                     byte[] randomBytes = System.Text.Encoding.UTF8.GetBytes(random);// random.getBytes(CHARSET);
                     byte[] plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plaintext);// plaintext.getBytes(CHARSET);
-                    byte[] lengthByte = Utils.int2Bytes(plainTextBytes.Length);
+                    byte[] lengthByte = Utils.Int2Bytes(plainTextBytes.Length);
                     byte[] corpidBytes = System.Text.Encoding.UTF8.GetBytes(corpId);// corpId.getBytes(CHARSET);
                                                                                     //MemoryStream byteStream = new MemoryStream();
                     var bytestmp = new List<byte>();
@@ -130,15 +130,17 @@ namespace MyProject.Tools.Helpers
                     bytestmp.AddRange(lengthByte);
                     bytestmp.AddRange(plainTextBytes);
                     bytestmp.AddRange(corpidBytes);
-                    byte[] padBytes = PKCS7Padding.getPaddingBytes(bytestmp.Count);
+                    byte[] padBytes = PKCS7Padding.GetPaddingBytes(bytestmp.Count);
                     bytestmp.AddRange(padBytes);
                     byte[] unencrypted = bytestmp.ToArray();
 
-                    RijndaelManaged rDel = new RijndaelManaged();
-                    rDel.Mode = CipherMode.CBC;
-                    rDel.Padding = PaddingMode.Zeros;
-                    rDel.Key = aesKey;
-                    rDel.IV = aesKey.ToList().Take(16).ToArray();
+                    RijndaelManaged rDel = new RijndaelManaged
+                    {
+                        Mode = CipherMode.CBC,
+                        Padding = PaddingMode.Zeros,
+                        Key = aesKey,
+                        IV = aesKey.ToList().Take(16).ToArray()
+                    };
                     ICryptoTransform cTransform = rDel.CreateEncryptor();
                     byte[] resultArray = cTransform.TransformFinalBlock(unencrypted, 0, unencrypted.Length);
                     return Convert.ToBase64String(resultArray, 0, resultArray.Length);
@@ -152,7 +154,7 @@ namespace MyProject.Tools.Helpers
                     //String result = base64.encodeToString(encrypted);
                     //return result;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_ENCRYPT_TEXT_ERROR);
                 }
@@ -163,17 +165,19 @@ namespace MyProject.Tools.Helpers
              * @param text 需要解密的密文
              * @return 解密得到的明文
              */
-            private String decrypt(String text)
+            private String Decrypt(String text)
             {
                 byte[] originalArr;
                 try
                 {
                     byte[] toEncryptArray = Convert.FromBase64String(text);
-                    RijndaelManaged rDel = new RijndaelManaged();
-                    rDel.Mode = CipherMode.CBC;
-                    rDel.Padding = PaddingMode.Zeros;
-                    rDel.Key = aesKey;
-                    rDel.IV = aesKey.ToList().Take(16).ToArray();
+                    RijndaelManaged rDel = new RijndaelManaged
+                    {
+                        Mode = CipherMode.CBC,
+                        Padding = PaddingMode.Zeros,
+                        Key = aesKey,
+                        IV = aesKey.ToList().Take(16).ToArray()
+                    };
                     ICryptoTransform cTransform = rDel.CreateDecryptor();
                     originalArr = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
                     //return System.Text.UTF8Encoding.UTF8.GetString(resultArray);
@@ -188,7 +192,7 @@ namespace MyProject.Tools.Helpers
                     //// 解密
                     //originalArr = cipher.doFinal(encrypted);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_DECRYPT_TEXT_ERROR);
                 }
@@ -198,7 +202,7 @@ namespace MyProject.Tools.Helpers
                 try
                 {
                     // 去除补位字符
-                    byte[] bytes = PKCS7Padding.removePaddingBytes(originalArr);
+                    byte[] bytes = PKCS7Padding.RemovePaddingBytes(originalArr);
                     Console.Out.WriteLine("bytes size:" + bytes.Length);
 
                     // 分离16位随机字符串,网络字节序和corpId
@@ -209,7 +213,7 @@ namespace MyProject.Tools.Helpers
                     }
 
                     Console.Out.WriteLine("bytes plainText:" + networkOrder.Length + " " + JsonSerializer.Serialize(networkOrder));
-                    int plainTextLegth = Utils.bytes2int(networkOrder);
+                    int plainTextLegth = Utils.Bytes2int(networkOrder);
                     Console.Out.WriteLine("bytes size:" + plainTextLegth);
 
                     plainText = System.Text.UTF8Encoding.UTF8.GetString(bytes.Skip(20).Take(plainTextLegth).ToArray()); // new String(Arrays.copyOfRange(bytes, 20, 20 + plainTextLegth), CHARSET);
@@ -217,7 +221,7 @@ namespace MyProject.Tools.Helpers
                     Console.Out.WriteLine("bytes plainText:" + plainText);
 
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_DECRYPT_TEXT_LENGTH_ERROR);
                 }
@@ -241,7 +245,7 @@ namespace MyProject.Tools.Helpers
              * @return
              * @throws DingTalkEncryptException
              */
-            public String getSignature(String token, String timestamp, String nonce, String encrypt)
+            public String GetSignature(String token, String timestamp, String nonce, String encrypt)
             {
                 try
                 {
@@ -300,7 +304,7 @@ namespace MyProject.Tools.Helpers
                     }
                     return hexstr.ToString();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_SIGNATURE_ERROR);
                 }
@@ -372,14 +376,14 @@ namespace MyProject.Tools.Helpers
              * @param count
              * @return
              */
-            public static byte[] getPaddingBytes(int count)
+            public static byte[] GetPaddingBytes(int count)
             {
                 int amountToPad = BLOCK_SIZE - (count % BLOCK_SIZE);
                 if (amountToPad == 0)
                 {
                     amountToPad = BLOCK_SIZE;
                 }
-                char padChr = chr(amountToPad);
+                char padChr = Chr(amountToPad);
                 String tmp = string.Empty; ;
                 for (int index = 0; index < amountToPad; index++)
                 {
@@ -393,7 +397,7 @@ namespace MyProject.Tools.Helpers
              * @param decrypted
              * @return
              */
-            public static byte[] removePaddingBytes(byte[] decrypted)
+            public static byte[] RemovePaddingBytes(byte[] decrypted)
             {
                 int pad = (int)decrypted[decrypted.Length - 1];
                 if (pad < 1 || pad > BLOCK_SIZE)
@@ -406,7 +410,7 @@ namespace MyProject.Tools.Helpers
                 return output;
             }
 
-            private static char chr(int a)
+            private static char Chr(int a)
             {
                 byte target = (byte)(a & 0xFF);
                 return (char)target;
@@ -423,7 +427,7 @@ namespace MyProject.Tools.Helpers
          *
          * @return
          */
-            public static String getRandomStr(int count)
+            public static String GetRandomStr(int count)
             {
                 String baset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                 Random random = new Random();
@@ -440,7 +444,7 @@ namespace MyProject.Tools.Helpers
             /*
              * int转byte数组,高位在前
              */
-            public static byte[] int2Bytes(int count)
+            public static byte[] Int2Bytes(int count)
             {
                 byte[] byteArr = new byte[4];
                 byteArr[3] = (byte)(count & 0xFF);
@@ -455,7 +459,7 @@ namespace MyProject.Tools.Helpers
              * @param byteArr
              * @return
              */
-            public static int bytes2int(byte[] byteArr)
+            public static int Bytes2int(byte[] byteArr)
             {
                 int count = 0;
                 for (int i = 0; i < 4; ++i)
@@ -482,18 +486,18 @@ namespace MyProject.Tools.Helpers
             public static void Main(string[] args)
             {
 
-                String[] a = new String[] { "1", "W", "t" };
+                //String[] a = new String[] { "1", "W", "t" };
 
                 var ding = new DingTalkEncryptor("tokenxxxx", "o1w0aum42yaptlz8alnhwikjd3jenzt9cb9wmzptgus", "dingxxxxxx");
-                var msg = ding.getEncryptedMap("success");
+                var msg = ding.GetEncryptedMap("success");
                 Console.Out.WriteLine(msg);
                 //msg_signature, $data->timeStamp, $data->nonce, $data->encrypt
-                var text = ding.getDecryptMsg(msg["msg_signature"], msg["timeStamp"], msg["nonce"], msg["encrypt"]);
+                var text = ding.GetDecryptMsg(msg["msg_signature"], msg["timeStamp"], msg["nonce"], msg["encrypt"]);
                 Console.Out.WriteLine(text);
                 // "msg_signature":"c01beb7b06384cf416e04930aed794684aae98c1","encrypt":"","timeStamp":,"nonce":""
                 //{"timeStamp":"1605695694141","msg_signature":"702c953056613f5c7568b79ed134a27bd2dcd8d0",
                 //"encrypt":"","nonce":"WelUQl6bCqcBa2fMc6eI"}
-                text = ding.getDecryptMsg("f36f4ba5337d426c7d4bca0dbcb06b3ddc1388fc", "1605695694141", "WelUQl6bCqcBa2fM", "X1VSe9cTJUMZu60d3kyLYTrBq5578ZRJtteU94wG0Q4Uk6E/wQYeJRIC0/UFW5Wkya1Ihz9oXAdLlyC9TRaqsQ==");
+                text = ding.GetDecryptMsg("f36f4ba5337d426c7d4bca0dbcb06b3ddc1388fc", "1605695694141", "WelUQl6bCqcBa2fM", "X1VSe9cTJUMZu60d3kyLYTrBq5578ZRJtteU94wG0Q4Uk6E/wQYeJRIC0/UFW5Wkya1Ihz9oXAdLlyC9TRaqsQ==");
                 Console.Out.WriteLine(text);
             }
         }

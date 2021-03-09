@@ -50,5 +50,27 @@ namespace MyProject.Api.Controllers.Business
         {
             return DingHttpBll.AddApproval();
         }
+
+        /// <summary>
+        /// 获取失败回调列表
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public Result GetFailCallBackList()
+        {
+            return DingHttpBll.GetFailCallBackList();
+        }
+
+        /// <summary>
+        /// 发送机器人推送
+        /// </summary>
+        /// <param name="msg">消息内容</param>
+        /// <returns></returns>
+        [HttpGet]
+        public Result SendRobotMsg(string msg)
+        {
+            return DingHttpBll.SendRobotMsg(msg);
+        }
+        
     }
 }
