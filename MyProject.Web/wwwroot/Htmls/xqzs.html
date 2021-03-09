@@ -12,8 +12,8 @@
 <body>
         <div class="wrap">
             <div class="content">
-                <div class="head">
-                </div>
+                <!--<div class="head">
+                </div>-->
                 <table class="list_tt">
                     <tbody>
                         <tr>
@@ -75,6 +75,7 @@
                         $.each(data, function (k, v) {
                             let index = newArr.indexOf(data[k].a);
                             if (index == -1) {
+                                //防重复
                                 newArr.push(data[k].a);
                                 sStr = sStr + "	   <li>";
                                 sStr = sStr + "	      <div class='inlist_line'>";
@@ -90,7 +91,8 @@
                         sStr = sStr + "	</div>";
                         $('#qylist').empty();
                         $('#qylist').append(sStr);
-                        jQuery(".txtMarquee-top").slide({ mainCell: ".bd ul", autoPlay: true, effect: "topMarquee", vis: 10, interTime: 50 });
+                        jQuery(".txtMarquee-top")
+                            .slide({ mainCell: ".bd ul", autoPlay: true, effect: "topMarquee", vis: 10, interTime: 50 });
 
                     }
                 </script>
