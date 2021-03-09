@@ -18,12 +18,12 @@ namespace MyProject.Tools
 
         public DbHelper()
         {
-            //connStr = UtilConfigHelper.Configuration.GetConnectionString("Def.Writer");
+            connStr = UtilConfigHelper.GetConnectionString("Def.Writer");
         }
 
         public DbHelper(string connName)
         {
-            //connStr = UtilConfigHelper.Configuration.GetConnectionString(connName);
+            connStr = UtilConfigHelper.GetConnectionString(connName);
         }
 
         #region 操作连接

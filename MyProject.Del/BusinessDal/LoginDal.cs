@@ -5,9 +5,9 @@ using System.Data.SqlClient;
 
 namespace MyProject.Dal
 {
-    public class LoginDal:BaseDal
+    public class LoginDal : BaseDal
     {
-        public static DataTable GetEmpDT(string userName,string UserPwd)
+        public static DataTable GetEmpDT(string userName, string UserPwd)
         {
             string sqlStr = @"SELECT top 1 * FROM dbo.e_Emp
                     WHERE FUserName=@FUserName AND FPwd=@FPwd";
@@ -23,10 +23,13 @@ namespace MyProject.Dal
         /// <returns></returns>
         public static DataTable GetDt()
         {
-            IDbConnection conn = new SqlConnection("Data Source=.;Initial Catalog=DataMip;Integrated Security=True;MultipleActiveResultSets=True");
-
-            var result = conn.Execute("Insert into Users values (@UserName, @Email, @Address)",
-                                   new { UserName = "jack", Email = "380234234@qq.com", Address = "上海" });
+            string connStr = "Data Source=.;Initial Catalog=DataMip;Integrated Security=True;MultipleActiveResultSets=True";
+            using (IDbConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                var result = conn.Execute("Insert into Users values (@UserName, @Email, @Address)",
+                                       new { UserName = "jack", Email = "380234234@qq.com", Address = "上海" });
+            }
             return null;
         }
     }
