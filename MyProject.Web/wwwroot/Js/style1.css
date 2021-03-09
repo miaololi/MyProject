@@ -3,7 +3,7 @@ tubiao_intubiao_intubiao_intubiao_intubiao_intubiao_intubiao_in@charset "utf-8";
 /* Common */
 body,p,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,dt,dd,table,th,td,form,fieldset,legend,input,textarea,button,select{margin:0;padding:0;}
 body,input,textarea,select,button,table{font-family:"å¾®è½¯é›…é»‘",sans-serif;font-size:12px !important; overflow: hidden;}
-body{/*overflow-y: scroll;*/; margin: 0px !important; display: block; 
+body{/*overflow-y: scroll;*/ margin: 0px !important; display: block; 
 }
 img,fieldset{border:0}
 ul,ol{list-style:none}
