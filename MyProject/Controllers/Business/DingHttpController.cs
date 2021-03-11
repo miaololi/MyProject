@@ -139,5 +139,37 @@ namespace MyProject.Api.Controllers.Business
         {
             return DingHttpBll.GetApprovalList(name, index, time);
         }
+
+        /// <summary>
+        /// 获取钉钉部门id列表
+        /// </summary>
+        /// <param name="deptID"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public Result GetDeptIDList(int deptID)
+        {
+            return DingHttpBll.GetDeptIDList(deptID);
+        }
+
+        /// <summary>
+        /// 获取钉钉部门列表
+        /// </summary>
+        /// <param name="deptID"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public Result GetDeptList(int deptID)
+        {
+            return DingHttpBll.GetDeptList(deptID);
+        }
+
+        /// <summary>
+        /// 获取钉钉员工id列表
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public Result GetAllUserIDList()
+        {
+            return DingHttpBll.GetAllUserIDList();
+        }
     }
 }

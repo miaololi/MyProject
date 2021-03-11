@@ -20,7 +20,7 @@ namespace MyProject.Bll
         static readonly string appkey = "dingranxamcp66vp3pme";
         static readonly string appsecret = "8dehm5JwhuSflESEw-n0OWgZtHqfC3OowINLGgD41nWRoDlsTwdOQopoQ9Kp5b1j";
         static readonly string dingUrl = "https://oapi.dingtalk.com";
-    
+
         #region 基础常用功能
         /// <summary>
         /// 获取钉钉token
@@ -42,13 +42,14 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("GET");
             OapiGettokenResponse rsp = client.Execute(req);
-            if (rsp != null && rsp.Errcode == 0)
+            if (rsp != null && rsp.Errcode == 0 )
             {
                 token = rsp.AccessToken;
                 RedisHelper.Set("DingToken", token, expireSeconds: 7200);
                 return token;
             }
-            else {
+            else
+            {
                 return rsp.Errmsg;
             }
         }
@@ -59,7 +60,7 @@ namespace MyProject.Bll
         /// <returns></returns>
         public static string GetProcessCodeByName(string name)
         {
-            string namecode=System.Web.HttpUtility.UrlEncode(name, Encoding.UTF8);
+            string namecode = System.Web.HttpUtility.UrlEncode(name, Encoding.UTF8);
             string processCode = RedisHelper.Get(namecode);
             if (!string.IsNullOrWhiteSpace(processCode))
             {
@@ -73,7 +74,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("POST");
             OapiProcessGetByNameResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0)
+            if (rsp != null && rsp.Errcode == 0 )
             {
                 processCode = rsp.ProcessCode;
                 RedisHelper.Set(namecode, processCode, expireSeconds: 36000);
@@ -86,7 +87,7 @@ namespace MyProject.Bll
         }
 
         /// <summary>
-        /// 根据code获取客户ID
+        /// 根据手机获取客户ID
         /// </summary>
         /// <returns></returns>
         public static Result GetDingUserIDByMobile(string Mobile)
@@ -100,7 +101,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("GET");
             OapiUserGetByMobileResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0)
+            if (rsp != null && rsp.Errcode == 0 )
             {
                 result.StrOjb = rsp.Userid;
             }
@@ -145,7 +146,7 @@ namespace MyProject.Bll
             }
             return token;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -199,7 +200,7 @@ namespace MyProject.Bll
                 };
                 req.SetHttpMethod("GET");
                 OapiUserGetResponse rsp = client.Execute(req, accessToken);
-                if (rsp != null && rsp.Errcode == 0)
+                if (rsp != null && rsp.Errcode == 0 )
                 {
                     result.Obj = rsp;
                 }
@@ -299,7 +300,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("GET");
             OapiCallbackFailrecordListResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0)
+            if (rsp != null && rsp.Errcode == 0 )
             {
                 result.Obj = rsp;
             }
@@ -324,7 +325,7 @@ namespace MyProject.Bll
         /// <returns></returns>
         public static Result SendRobotMsg(string msg)
         {
-            Result result = new Result() { Code=1};
+            Result result = new Result() { Code = 1 };
             string robotToken = "da95d6bcd4e389e3bce4eb518eb08dc23a6f315ea5987eb247c21989f2d00376";
             IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/robot/send");
             OapiRobotSendRequest req = new OapiRobotSendRequest()
@@ -332,12 +333,12 @@ namespace MyProject.Bll
                 Msgtype = "text",
                 Text_ = new OapiRobotSendRequest.TextDomain
                 {
-                    Content = "推送:"+ msg
+                    Content = "推送:" + msg
                 },
                 At_ = new OapiRobotSendRequest.AtDomain
                 {
-                    AtMobiles =new List<string> { 
-                        "13968414187" 
+                    AtMobiles = new List<string> {
+                        "13968414187"
                     },
                     IsAtAll = false
                 }
@@ -348,7 +349,7 @@ namespace MyProject.Bll
             req.AddOtherParameter("sign", ExHelper.AddSign(secret, timestamp));
             req.SetHttpMethod("POST");
             OapiRobotSendResponse rsp = client.Execute(req, robotToken, timeNow);
-            if (rsp != null && rsp.Errcode == 0)
+            if (rsp != null && rsp.Errcode == 0 )
             {
                 result.Obj = rsp;
                 result.Message = "发送成功";
@@ -374,7 +375,7 @@ namespace MyProject.Bll
         /// <param name="index"></param>
         /// <param name="time"></param>
         /// <returns></returns>
-        public static Result GetApprovalListID(string name, int index,DateTime time)
+        public static Result GetApprovalListID(string name, int index, DateTime time)
         {
             Result result = new Result() { Code = 1 };
             string accessToken = GetDingToken();
@@ -384,13 +385,13 @@ namespace MyProject.Bll
                 Cursor = index,
                 Size = 10,
                 StartTime = time.ToUnixTimestampByMilliseconds(),
-                EndTime =DateTime.Now.ToUnixTimestampByMilliseconds(),
-                ProcessCode= GetProcessCodeByName(name),
-                UseridList=""
+                EndTime = DateTime.Now.ToUnixTimestampByMilliseconds(),
+                ProcessCode = GetProcessCodeByName(name),
+                UseridList = ""
             };
             req.SetHttpMethod("POST");
             OapiProcessinstanceListidsResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0)
+            if (rsp != null && rsp.Errcode == 0 )
             {
                 result.Obj = rsp;
             }
@@ -431,7 +432,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("POST");
             OapiProcessinstanceListResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0)
+            if (rsp != null && rsp.Errcode == 0 )
             {
                 result.Obj = rsp;
             }
@@ -447,6 +448,131 @@ namespace MyProject.Bll
                 result.Message = "获取钉钉审批列表失败";
             }
             return result;
+        }
+
+        /// <summary>
+        /// 获取钉钉部门id列表
+        /// </summary>
+        /// <param name="deptID">部门id 1默认顶级</param>
+        /// <returns></returns>
+        public static Result GetDeptIDList(int deptID)
+        {
+            Result result = new Result() { Code = 1 };
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/topapi/v2/department/listsubid");
+            OapiV2DepartmentListsubidRequest req = new OapiV2DepartmentListsubidRequest
+            {
+                DeptId = deptID
+            };
+            req.SetHttpMethod("POST");
+            OapiV2DepartmentListsubidResponse rsp = client.Execute(req, accessToken);
+            if (rsp != null && rsp.Errcode == 0 )
+            {
+                result.Obj = rsp.Result.DeptIdList;
+            }
+            else if (rsp != null && rsp.Errcode != 0)
+            {
+                result.Code = 0;
+                result.Obj = rsp;
+                result.Message = rsp.Errmsg;
+            }
+            else
+            {
+                result.Code = 0;
+                result.Message = "获取钉钉部门id列表失败";
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取钉钉部门列表
+        /// </summary>
+        /// <param name="deptID">部门id 1默认顶级</param>
+        /// <returns></returns>
+        public static Result GetDeptList(int deptID)
+        {
+            Result result = new Result() { Code = 1 };
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/topapi/v2/department/listsub");
+            OapiV2DepartmentListsubRequest req = new OapiV2DepartmentListsubRequest
+            {
+                DeptId = deptID
+            };
+            req.SetHttpMethod("POST");
+            OapiV2DepartmentListsubResponse rsp = client.Execute(req, accessToken);
+            if (rsp != null && rsp.Errcode == 0 )
+            {
+                result.Obj = rsp;
+            }
+            else if (rsp != null && rsp.Errcode != 0)
+            {
+                result.Code = 0;
+                result.Obj = rsp;
+                result.Message = rsp.Errmsg;
+            }
+            else
+            {
+                result.Code = 0;
+                result.Message = "获取钉钉部门列表失败";
+            }
+            return result;
+        }
+
+        public static Result GetAllUserIDList()
+        {
+            Result result = new Result() { Code = 1 };
+            List<string> userIDs = new List<string>();
+            var res = GetDeptIDList(1);
+            if (res.Code != 1)
+            {
+                return res;
+            }
+            dynamic deptIDs = res.Obj;
+
+            foreach (long deptID in deptIDs)
+            {
+                OapiUserListidResponse rsp = GetUserIDListByDeptID(deptID);
+                if (rsp != null && rsp.Errcode == 0 )
+                {
+                    if (rsp.Result != null && rsp.Result.UseridList.Count > 0)
+                    {
+                        userIDs.AddRange(rsp.Result.UseridList);
+                    }
+                }
+                else if (rsp != null && rsp.Errcode != 0)
+                {
+                    result.Code = 0;
+                    result.Obj = rsp;
+                    result.Message = rsp.Errmsg;
+                    return result;
+                }
+                else
+                {
+                    result.Code = 0;
+                    result.Message = "获取钉钉员工id列表失败" + deptID;
+                    return result;
+                }
+            }
+
+            result.Obj = userIDs;
+            return result;
+        }
+        /// <summary>
+        /// 获取部门下的员工ID列表
+        /// </summary>
+        /// <param name="deptID"></param>
+        /// <returns></returns>
+        public static OapiUserListidResponse GetUserIDListByDeptID(long deptID)
+        {
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/topapi/user/listid");
+            OapiUserListidRequest req = new OapiUserListidRequest
+            {
+                DeptId = deptID
+            };
+            req.SetHttpMethod("POST");
+            OapiUserListidResponse rsp = client.Execute(req, accessToken);
+            return rsp;
         }
     }
 }
