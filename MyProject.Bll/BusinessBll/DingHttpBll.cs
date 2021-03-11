@@ -6,6 +6,8 @@ using MyProject.Tools;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Encodings.Web;
 using static DingTalk.Api.Request.OapiProcessinstanceCreateRequest;
 
 namespace MyProject.Bll
@@ -18,15 +20,15 @@ namespace MyProject.Bll
         static readonly string appkey = "dingranxamcp66vp3pme";
         static readonly string appsecret = "8dehm5JwhuSflESEw-n0OWgZtHqfC3OowINLGgD41nWRoDlsTwdOQopoQ9Kp5b1j";
         static readonly string dingUrl = "https://oapi.dingtalk.com";
-        static string token = "";
-
+    
+        #region 基础常用功能
         /// <summary>
         /// 获取钉钉token
         /// </summary>
         /// <returns></returns>
         public static string GetDingToken()
         {
-            token = RedisHelper.Get("DingToken");
+            string token = RedisHelper.Get("DingToken");
             if (!string.IsNullOrWhiteSpace(token))
             {
                 return token;
@@ -40,21 +42,89 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("GET");
             OapiGettokenResponse rsp = client.Execute(req);
-            if (rsp.Body != null)
+            if (rsp != null && rsp.Errcode == 0)
             {
                 token = rsp.AccessToken;
                 RedisHelper.Set("DingToken", token, expireSeconds: 7200);
                 return token;
             }
-            return token;
+            else {
+                return rsp.Errmsg;
+            }
+        }
+        /// <summary>
+        /// 获取订单编码
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static string GetProcessCodeByName(string name)
+        {
+            string namecode=System.Web.HttpUtility.UrlEncode(name, Encoding.UTF8);
+            string processCode = RedisHelper.Get(namecode);
+            if (!string.IsNullOrWhiteSpace(processCode))
+            {
+                return processCode;
+            }
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/topapi/process/get_by_name");
+            OapiProcessGetByNameRequest req = new OapiProcessGetByNameRequest
+            {
+                Name = name
+            };
+            req.SetHttpMethod("POST");
+            OapiProcessGetByNameResponse rsp = client.Execute(req, accessToken);
+            if (rsp != null && rsp.Errcode == 0)
+            {
+                processCode = rsp.ProcessCode;
+                RedisHelper.Set(namecode, processCode, expireSeconds: 36000);
+                return processCode;
+            }
+            else
+            {
+                return rsp.Errmsg;
+            }
         }
 
+        /// <summary>
+        /// 根据code获取客户ID
+        /// </summary>
+        /// <returns></returns>
+        public static Result GetDingUserIDByMobile(string Mobile)
+        {
+            Result result = new Result() { Code = 1 };
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/user/get_by_mobile");
+            OapiUserGetByMobileRequest req = new OapiUserGetByMobileRequest
+            {
+                Mobile = Mobile
+            };
+            req.SetHttpMethod("GET");
+            OapiUserGetByMobileResponse rsp = client.Execute(req, accessToken);
+            if (rsp != null && rsp.Errcode == 0)
+            {
+                result.StrOjb = rsp.Userid;
+            }
+            else if (rsp != null && rsp.Errcode != 0)
+            {
+                result.Code = 0;
+                result.Obj = rsp;
+                result.Message = rsp.Errmsg;
+            }
+            else
+            {
+                result.Code = 0;
+                result.Message = "获取钉钉客户ID有误";
+            }
+            return result;
+        }
+        #endregion
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
         public static string GetDingSsoToken()
         {
+            string token = "";
             if (!string.IsNullOrWhiteSpace(token))
             {
                 return token;
@@ -93,39 +163,6 @@ namespace MyProject.Bll
             if (rsp.Body != null)
             {
                 result.Obj = rsp.Body;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 根据code获取客户ID
-        /// </summary>
-        /// <returns></returns>
-        public static Result GetDingUserIDByMobile(string Mobile)
-        {
-            Result result = new Result() { Code = 1 };
-            string accessToken = GetDingToken();
-            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/user/get_by_mobile");
-            OapiUserGetByMobileRequest req = new OapiUserGetByMobileRequest
-            {
-                Mobile = Mobile
-            };
-            req.SetHttpMethod("GET");
-            OapiUserGetByMobileResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0)
-            {
-                result.StrOjb = rsp.Userid;
-            }
-            else if (rsp != null && rsp.Errcode != 0)
-            {
-                result.Code = 0;
-                result.Obj = rsp;
-                result.Message = rsp.Errmsg;
-            }
-            else
-            {
-                result.Code = 0;
-                result.Message = "获取钉钉客户ID有误";
             }
             return result;
         }
@@ -326,6 +363,88 @@ namespace MyProject.Bll
             {
                 result.Code = 0;
                 result.Message = "发送机器人推送失败";
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取审批列表ID
+        /// </summary>
+        /// <param name="ProcessCode"></param>
+        /// <param name="index"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public static Result GetApprovalListID(string name, int index,DateTime time)
+        {
+            Result result = new Result() { Code = 1 };
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/topapi/processinstance/listids");
+            OapiProcessinstanceListidsRequest req = new OapiProcessinstanceListidsRequest
+            {
+                Cursor = index,
+                Size = 10,
+                StartTime = time.ToUnixTimestampByMilliseconds(),
+                EndTime =DateTime.Now.ToUnixTimestampByMilliseconds(),
+                ProcessCode= GetProcessCodeByName(name),
+                UseridList=""
+            };
+            req.SetHttpMethod("POST");
+            OapiProcessinstanceListidsResponse rsp = client.Execute(req, accessToken);
+            if (rsp != null && rsp.Errcode == 0)
+            {
+                result.Obj = rsp;
+            }
+            else if (rsp != null && rsp.Errcode != 0)
+            {
+                result.Code = 0;
+                result.Obj = rsp;
+                result.Message = rsp.Errmsg;
+            }
+            else
+            {
+                result.Code = 0;
+                result.Message = "获取钉钉审批列表ID失败";
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取审批列表ID
+        /// </summary>
+        /// <param name="ProcessCode"></param>
+        /// <param name="index"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public static Result GetApprovalList(string name, int index, DateTime time)
+        {
+            Result result = new Result() { Code = 1 };
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/topapi/processinstance/list");
+            OapiProcessinstanceListRequest req = new OapiProcessinstanceListRequest
+            {
+                Cursor = index,
+                Size = 10,
+                StartTime = time.ToUnixTimestampByMilliseconds(),
+                EndTime = DateTime.Now.ToUnixTimestampByMilliseconds(),
+                ProcessCode = GetProcessCodeByName(name),
+                UseridList = ""
+            };
+            req.SetHttpMethod("POST");
+            OapiProcessinstanceListResponse rsp = client.Execute(req, accessToken);
+            if (rsp != null && rsp.Errcode == 0)
+            {
+                result.Obj = rsp;
+            }
+            else if (rsp != null && rsp.Errcode != 0)
+            {
+                result.Code = 0;
+                result.Obj = rsp;
+                result.Message = rsp.Errmsg;
+            }
+            else
+            {
+                result.Code = 0;
+                result.Message = "获取钉钉审批列表失败";
             }
             return result;
         }
