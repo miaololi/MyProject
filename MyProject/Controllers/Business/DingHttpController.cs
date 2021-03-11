@@ -2,6 +2,7 @@
 using MyProject.Bll;
 using MyProject.Models;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace MyProject.Api.Controllers.Business
@@ -146,7 +147,7 @@ namespace MyProject.Api.Controllers.Business
         /// <param name="deptID"></param>
         /// <returns></returns>
         [HttpGet]
-        public Result GetDeptIDList(int deptID)
+        public Result<List<long>> GetDeptIDList(int deptID)
         {
             return DingHttpBll.GetDeptIDList(deptID);
         }
@@ -160,6 +161,38 @@ namespace MyProject.Api.Controllers.Business
         public Result GetDeptList(int deptID)
         {
             return DingHttpBll.GetDeptList(deptID);
+        }
+
+        /// <summary>
+        /// 获取所有部门ID 
+        /// </summary>
+        /// <param name="deptID"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public Result GetAllDeptIDList(int deptID)
+        {
+            Result result = new Result()
+            {
+                Code = 1,
+                Obj = DingHttpBll.GetAllDeptIDList(deptID)
+            };
+            return result;
+        }
+        
+        /// <summary>
+        /// 获取员工ID根据部门
+        /// </summary>
+        /// <param name="deptID"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public Result GetUserIDListByDeptID(int deptID)
+        {
+            Result result = new Result()
+            {
+                Code = 1,
+                Obj = DingHttpBll.GetUserIDListByDeptID(deptID)
+            };
+            return result;
         }
 
         /// <summary>

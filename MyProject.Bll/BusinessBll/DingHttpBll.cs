@@ -42,7 +42,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("GET");
             OapiGettokenResponse rsp = client.Execute(req);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0)
             {
                 token = rsp.AccessToken;
                 RedisHelper.Set("DingToken", token, expireSeconds: 7200);
@@ -74,7 +74,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("POST");
             OapiProcessGetByNameResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0)
             {
                 processCode = rsp.ProcessCode;
                 RedisHelper.Set(namecode, processCode, expireSeconds: 36000);
@@ -101,7 +101,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("GET");
             OapiUserGetByMobileResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0)
             {
                 result.StrOjb = rsp.Userid;
             }
@@ -200,7 +200,7 @@ namespace MyProject.Bll
                 };
                 req.SetHttpMethod("GET");
                 OapiUserGetResponse rsp = client.Execute(req, accessToken);
-                if (rsp != null && rsp.Errcode == 0 )
+                if (rsp != null && rsp.Errcode == 0)
                 {
                     result.Obj = rsp;
                 }
@@ -300,7 +300,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("GET");
             OapiCallbackFailrecordListResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0)
             {
                 result.Obj = rsp;
             }
@@ -349,7 +349,7 @@ namespace MyProject.Bll
             req.AddOtherParameter("sign", ExHelper.AddSign(secret, timestamp));
             req.SetHttpMethod("POST");
             OapiRobotSendResponse rsp = client.Execute(req, robotToken, timeNow);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0)
             {
                 result.Obj = rsp;
                 result.Message = "发送成功";
@@ -391,7 +391,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("POST");
             OapiProcessinstanceListidsResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0)
             {
                 result.Obj = rsp;
             }
@@ -432,7 +432,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("POST");
             OapiProcessinstanceListResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0)
             {
                 result.Obj = rsp;
             }
@@ -455,9 +455,9 @@ namespace MyProject.Bll
         /// </summary>
         /// <param name="deptID">部门id 1默认顶级</param>
         /// <returns></returns>
-        public static Result GetDeptIDList(int deptID)
+        public static Result<List<long>> GetDeptIDList(long deptID)
         {
-            Result result = new Result() { Code = 1 };
+            Result<List<long>> result = new Result<List<long>>() { Code = 1 };
             string accessToken = GetDingToken();
             IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/topapi/v2/department/listsubid");
             OapiV2DepartmentListsubidRequest req = new OapiV2DepartmentListsubidRequest
@@ -466,14 +466,14 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("POST");
             OapiV2DepartmentListsubidResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0 && rsp.Result != null)
             {
                 result.Obj = rsp.Result.DeptIdList;
             }
             else if (rsp != null && rsp.Errcode != 0)
             {
                 result.Code = 0;
-                result.Obj = rsp;
+                result.ObjEx = rsp;
                 result.Message = rsp.Errmsg;
             }
             else
@@ -482,6 +482,39 @@ namespace MyProject.Bll
                 result.Message = "获取钉钉部门id列表失败";
             }
             return result;
+        }
+
+        /// <summary>
+        /// 获取所有部门ID
+        /// </summary>
+        /// <param name="deptID"></param>
+        /// <returns></returns>
+        public static List<long> GetAllDeptIDList(long deptID)
+        {
+            List<long> allDeptIDs = new List<long>();
+            var res = GetDeptIDList(deptID);
+            if (res.Code == 1)
+            {
+                List<long> curDeptIDs = res.Obj;
+                foreach (var curDeptID in curDeptIDs)
+                {
+                    if (allDeptIDs.Contains(curDeptID))
+                    {
+                        continue;
+                    }
+                    allDeptIDs.Add(curDeptID);
+                    var deptIDs = GetAllDeptIDList(curDeptID);
+                    if (deptIDs != null)
+                    {
+                        allDeptIDs.AddRange(deptIDs);
+                    }
+                }
+            }
+            if (allDeptIDs.Count == 0)
+            {
+                return null;
+            }
+            return allDeptIDs;
         }
 
         /// <summary>
@@ -500,7 +533,7 @@ namespace MyProject.Bll
             };
             req.SetHttpMethod("POST");
             OapiV2DepartmentListsubResponse rsp = client.Execute(req, accessToken);
-            if (rsp != null && rsp.Errcode == 0 )
+            if (rsp != null && rsp.Errcode == 0)
             {
                 result.Obj = rsp;
             }
@@ -522,17 +555,11 @@ namespace MyProject.Bll
         {
             Result result = new Result() { Code = 1 };
             List<string> userIDs = new List<string>();
-            var res = GetDeptIDList(1);
-            if (res.Code != 1)
-            {
-                return res;
-            }
-            dynamic deptIDs = res.Obj;
-
+            var deptIDs = GetAllDeptIDList(1);
             foreach (long deptID in deptIDs)
             {
                 OapiUserListidResponse rsp = GetUserIDListByDeptID(deptID);
-                if (rsp != null && rsp.Errcode == 0 )
+                if (rsp != null && rsp.Errcode == 0)
                 {
                     if (rsp.Result != null && rsp.Result.UseridList.Count > 0)
                     {
