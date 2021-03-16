@@ -23,23 +23,29 @@ namespace MyProject.Api.Controllers.Business
         }
 
         /// <summary>
-        /// 
+        /// 钉钉回调
         /// </summary>
+        /// <param name="json"></param>
+        /// <param name="signature"></param>
+        /// <param name="timestamp"></param>
+        /// <param name="nonce"></param>
+        /// <returns></returns>
         [HttpPost]
-        public Dictionary<string, string> CallBack([FromBody] BodyJson json, [FromQuery]string signature="", [FromQuery] string timestamp = "", [FromQuery] string nonce= "")
+        public Dictionary<string, string> CallBack([FromBody] BodyJson json, [FromQuery] string signature = "", [FromQuery] string timestamp = "", [FromQuery] string nonce = "")
         {
             HttpRequest request = _httpContextAccessor.HttpContext.Request;
             return DingCallBackBll.CallBack(request, signature, timestamp, nonce, json.encrypt);
         }
+    }
 
+    /// <summary>
+    /// json
+    /// </summary>
+    public class BodyJson
+    {
         /// <summary>
-        /// json
+        /// aa
         /// </summary>
-        public class BodyJson{
-            /// <summary>
-            /// 
-            /// </summary>
-            public string encrypt { get; set; }
-        }
+        public string encrypt { get; set; }
     }
 }
