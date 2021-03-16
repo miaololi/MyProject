@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,7 +73,8 @@ namespace MyProject
             });
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
+            services.Configure<KestrelServerOptions>(x => x.AllowSynchronousIO = true)
+                .Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
             services.AddControllers();
         }
 
@@ -94,6 +96,11 @@ namespace MyProject
             app.UseHttpsRedirection();//调用HTTPS重定向中间件
             app.UseRouting();
             app.UseAuthorization();
+            app.Use(next => context =>
+            {
+                context.Request.EnableBuffering();
+                return next(context);
+            });
 
             app.UseEndpoints(endpoints =>
             {

@@ -26,10 +26,14 @@ namespace MyProject.Api.Controllers.Business
         /// 
         /// </summary>
         [HttpPost]
-        public Dictionary<string, string> CallBack([FromBody] string encrypt,[FromQuery]string signature="", [FromQuery] string timestamp = "", [FromQuery] string nonce= "")
+        public Dictionary<string, string> CallBack([FromBody] BodyJson json, [FromQuery]string signature="", [FromQuery] string timestamp = "", [FromQuery] string nonce= "")
         {
             HttpRequest request = _httpContextAccessor.HttpContext.Request;
-            return DingCallBackBll.CallBack(request, signature, timestamp, nonce, encrypt);
+            return DingCallBackBll.CallBack(request, signature, timestamp, nonce, json.encrypt);
+        }
+
+        public class BodyJson{
+            public string encrypt { get; set; }
         }
     }
 }

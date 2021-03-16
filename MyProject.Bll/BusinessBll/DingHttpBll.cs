@@ -410,7 +410,7 @@ namespace MyProject.Bll
         }
 
         /// <summary>
-        /// 获取审批列表ID
+        /// 获取审批列表
         /// </summary>
         /// <param name="ProcessCode"></param>
         /// <param name="index"></param>

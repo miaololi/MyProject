@@ -7,8 +7,8 @@ namespace MyProject.Bll.BusinessBll
 {
     public class DingCallBackBll
     {
-        readonly static string AesKey = "oKF1qLohVD8ABPIQZ6nxOUMhizdSiBW572vNGHBUAgX";
-        readonly static string Token = "yD2IMuE15PHBrwsCH6GYRq9sa6OmzLyMYINqggczXFhiLmJxPi8bwsJaY0";
+        readonly static string AesKey = "RCkXuCQkeGBkCs9gCqcC29AVwDWJ4UzmHbO5Pb7XPzS";
+        readonly static string Token = "lIDNjQRTUWyDVZR1JPKF5oU3";
         readonly static string OwnerKey = "dingranxamcp66vp3pme"; //以应用为维度推送的，OWNER_KEY为应用的AppKey,是以企业为维度推送的，OWNER_KEY为CorpId。
 
         public static Dictionary<string, string> CallBack(HttpRequest request,string signature, string timeStamp, string nonce, string encrypt)
@@ -17,7 +17,7 @@ namespace MyProject.Bll.BusinessBll
             signature= request.Query["msg_signature"].Count>0? request.Query["msg_signature"].ToString() : signature;
 
             // 2. 使用加解密类型
-            Tools.Helpers.DingHelper.DingTalkEncryptor ding = new Tools.Helpers.DingHelper.DingTalkEncryptor(Token, AesKey, OwnerKey);
+            Tools.Helpers.DingTalkEncryptor ding = new Tools.Helpers.DingTalkEncryptor(Token, AesKey, OwnerKey);
             //msg_signature, $data->timeStamp, $data->nonce, $data->encrypt
             string text = ding.GetDecryptMsg(signature, timeStamp, nonce, encrypt);
 
