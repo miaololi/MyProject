@@ -32,7 +32,13 @@ namespace MyProject.Api.Controllers.Business
             return DingCallBackBll.CallBack(request, signature, timestamp, nonce, json.encrypt);
         }
 
+        /// <summary>
+        /// json
+        /// </summary>
         public class BodyJson{
+            /// <summary>
+            /// 
+            /// </summary>
             public string encrypt { get; set; }
         }
     }

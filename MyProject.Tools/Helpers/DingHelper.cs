@@ -152,7 +152,7 @@ namespace MyProject.Tools.Helpers
                 //String result = base64.encodeToString(encrypted);
                 //return result;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_ENCRYPT_TEXT_ERROR);
             }
@@ -190,7 +190,7 @@ namespace MyProject.Tools.Helpers
                 //// 解密
                 //originalArr = cipher.doFinal(encrypted);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_DECRYPT_TEXT_ERROR);
             }
@@ -219,7 +219,7 @@ namespace MyProject.Tools.Helpers
                 Console.Out.WriteLine("bytes plainText:" + plainText);
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_DECRYPT_TEXT_LENGTH_ERROR);
             }
@@ -302,7 +302,7 @@ namespace MyProject.Tools.Helpers
                 }
                 return hexstr.ToString();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_SIGNATURE_ERROR);
             }
