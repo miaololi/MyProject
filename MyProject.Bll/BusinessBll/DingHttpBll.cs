@@ -551,6 +551,10 @@ namespace MyProject.Bll
             return result;
         }
 
+        /// <summary>
+        /// 获取所有员工ID
+        /// </summary>
+        /// <returns></returns>
         public static Result GetAllUserIDList()
         {
             Result result = new Result() { Code = 1 };
@@ -584,6 +588,7 @@ namespace MyProject.Bll
             result.Obj = userIDs;
             return result;
         }
+
         /// <summary>
         /// 获取部门下的员工ID列表
         /// </summary>
@@ -600,6 +605,16 @@ namespace MyProject.Bll
             req.SetHttpMethod("POST");
             OapiUserListidResponse rsp = client.Execute(req, accessToken);
             return rsp;
+        }
+
+        public static OapiAttendanceGetcolumnvalResponse GetColumnVal(OapiAttendanceGetcolumnvalRequest req)
+        {
+            string accessToken = GetDingToken();
+            IDingTalkClient client = new DefaultDingTalkClient(dingUrl + "/topapi/attendance/getcolumnval");
+            req.SetHttpMethod("POST");
+            OapiAttendanceGetcolumnvalResponse rsp = client.Execute(req, accessToken);
+            return rsp;
+           
         }
     }
 }

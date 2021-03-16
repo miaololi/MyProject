@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DingTalk.Api.Request;
+using Microsoft.AspNetCore.Mvc;
 using MyProject.Bll;
 using MyProject.Models;
 using System;
@@ -203,6 +204,22 @@ namespace MyProject.Api.Controllers.Business
         public Result GetAllUserIDList()
         {
             return DingHttpBll.GetAllUserIDList();
+        }
+
+        /// <summary>
+        /// 获取列值
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public Result GetColumnVal(OapiAttendanceGetcolumnvalRequest req)
+        {
+            Result result = new Result()
+            {
+                Code = 1,
+                Obj = DingHttpBll.GetColumnVal(req)
+            };
+            return result;
         }
     }
 }
