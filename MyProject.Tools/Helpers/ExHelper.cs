@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -252,6 +253,55 @@ namespace MyProject.Tools
             using var hmacsha256 = new HMACSHA256(keyByte);
             byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
             return System.Web.HttpUtility.UrlEncode(Convert.ToBase64String(hashmessage), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// 宜搭加签
+        /// </summary>
+        /// <param name="yiDaSecretKey">SecretKey</param>
+        /// <param name="method">POST/GET 大写</param>
+        /// <param name="timestamp"></param>
+        /// <param name="nonce"></param>
+        /// <param name="url">HTTP URL中的路径部分，如 "/yida_epaas/demo.json"</param>
+        /// <param name="pars"></param>
+        /// <returns></returns>
+        public static string Sign(string yiDaSecretKey, string method, string timestamp, string nonce, string url, Dictionary<string, string> pars)
+        {
+            #region 测试传参
+            //yiDaSecretKey = "";//问宜搭工作人员要
+            //method = "GET";
+            //timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzzz");//utc时间ISO8601格式
+            //nonce = string.Format(@$"{DateTime.Now.ToUnixTimestampByMilliseconds()}{new Random().Next(1000, 9999)}");//13位时间戳毫秒级+4位随机数
+            //url = "/yida_vpc/form/searchFormDatas.json";
+            //pars = new Dictionary<string, string> {
+            //    { "id","1"}
+            //};
+            #endregion
+
+            var encoding = new System.Text.UTF8Encoding();
+            //SecretKey作为密钥
+            byte[] keyByte = encoding.GetBytes(yiDaSecretKey);
+            //Hmac-Sha256加密算法
+            using var hmacsha256 = new System.Security.Cryptography.HMACSHA256(keyByte);
+
+            //HttpRequestMethod+'\n'+HttpRequestHeaderTimestamp+'\n'+HttpRequestHeaderNonce+'\n'+CanonicalURI+'\n'+HttpRequestParams
+            var strb = new StringBuilder();
+            //按照 key值 value值排序
+            pars = pars.OrderBy(o => (o.Key, o.Value)).ToDictionary(k => k.Key, v => v.Value);
+            //参数 格式 组装key1=value1&key2=value2。 
+            for (int i = 0; i < pars.Count; i++)
+            {
+                if (i != 0)
+                {
+                    strb.Append("&");
+                }
+                strb.AppendFormat(@"{0}={1}", pars.ElementAt(i).Key, pars.ElementAt(i).Value);
+            }
+            //计算请求签名时请将StringToSign作为消息
+            string stringToSign = string.Format($"{method}\n{timestamp}\n{nonce}\n{url}\n{strb}");
+            byte[] messageBytes = encoding.GetBytes(stringToSign);
+            byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
+            return Convert.ToBase64String(hashmessage);
         }
     }
 }
