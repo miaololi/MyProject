@@ -286,19 +286,18 @@ namespace MyProject.Tools
 
             //HttpRequestMethod+'\n'+HttpRequestHeaderTimestamp+'\n'+HttpRequestHeaderNonce+'\n'+CanonicalURI+'\n'+HttpRequestParams
             var strb = new StringBuilder();
-            //按照 key值 value值排序
             pars = pars.OrderBy(o => (o.Key, o.Value)).ToDictionary(k => k.Key, v => v.Value);
-            //参数 格式 组装key1=value1&key2=value2。 
+            //参数 格式 组装key1=value1&key2=value2。
             for (int i = 0; i < pars.Count; i++)
             {
                 if (i != 0)
                 {
                     strb.Append("&");
                 }
-                strb.AppendFormat(@"{0}={1}", pars.ElementAt(i).Key, pars.ElementAt(i).Value);
+                strb.Append($@"{pars.ElementAt(i).Key}={pars.ElementAt(i).Value}");
             }
             //计算请求签名时请将StringToSign作为消息
-            string stringToSign = string.Format($"{method}\n{timestamp}\n{nonce}\n{url}\n{strb}");
+            string stringToSign = $"{method}\n{timestamp}\n{nonce}\n{url}\n{strb}";
             byte[] messageBytes = encoding.GetBytes(stringToSign);
             byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
             return Convert.ToBase64String(hashmessage);
